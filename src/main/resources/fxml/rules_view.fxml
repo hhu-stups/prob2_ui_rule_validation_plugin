@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root type="AnchorPane" minWidth="240" minHeight="70" xmlns:fx="http://javafx.com/fxml/1">
+  <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+		AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0">
+    <AnchorPane>
+      <HBox spacing="10.0" AnchorPane.leftAnchor="10.0"
+        AnchorPane.topAnchor="10.0" AnchorPane.rightAnchor="10.0"
+        AnchorPane.bottomAnchor="10.0" alignment="CENTER">
+        <Button fx:id="filterButton" styleClass="button-dark"
+          alignment="CENTER" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
+          onAction="#handleFilterButton" HBox.hgrow="NEVER" prefHeight="${filterButton.width}">
+          <graphic>
+            <FontAwesomeIconView glyphName="SEARCH" styleClass="icon-basic" />
+          </graphic>
+        </Button>
+        <TextField fx:id="filterState" onAction="#handleFilterButton"
+                   promptText="Filter" HBox.hgrow="ALWAYS" />
+      </HBox>
+    </AnchorPane>
+    <TreeTableView fx:id="tv" VBox.vgrow="always" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" maxWidth="Infinity" showRoot="false">
+  		<columnResizePolicy>
+  			<TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+  		</columnResizePolicy>
+  		<columns>
+  			<TreeTableColumn fx:id="tvName" id="name" editable="false" minWidth="80.0" sortable="false" text="Name" />
+  			<TreeTableColumn fx:id="tvValue" id="value" editable="false" minWidth="80.0"  sortable="false" text="Value" />
+  		</columns>
+  		<placeholder>
+  			<Label text="No Rules Machine loaded"/>
+  		</placeholder>
+  		<TreeItem fx:id="tvRootItem" expanded="true">
+            <children>
+                <TreeItem fx:id="tvRulesItem"/>
+                <TreeItem fx:id="tvComputationsItem"/>
+            </children>
+        </TreeItem>
+    </TreeTableView>
+  </VBox> 
+</fx:root>
