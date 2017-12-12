@@ -18,26 +18,21 @@
           </graphic>
         </Button>
         <TextField fx:id="filterState" onAction="#handleFilterButton"
-                   promptText="Filter" HBox.hgrow="ALWAYS" />
+                   promptText="Filter" HBox.hgrow="ALWAYS" prefHeight="${filterButton.width}" />
       </HBox>
     </AnchorPane>
-    <TreeTableView fx:id="tv" VBox.vgrow="always" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" maxWidth="Infinity" showRoot="false">
+    <TreeTableView fx:id="treeTableView" VBox.vgrow="always" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" maxWidth="Infinity" showRoot="false">
   		<columnResizePolicy>
   			<TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
   		</columnResizePolicy>
   		<columns>
-  			<TreeTableColumn fx:id="tvName" id="name" editable="false" minWidth="80.0" sortable="false" text="Name" />
-  			<TreeTableColumn fx:id="tvValue" id="value" editable="false" minWidth="80.0"  sortable="false" text="Value" />
+  			<TreeTableColumn fx:id="tvNameColumn" id="name" editable="false" minWidth="80.0" sortable="false" text="Name" />
+  			<TreeTableColumn fx:id="tvValueColumn" id="value" editable="false" minWidth="80.0"  sortable="false" text="Value" />
   		</columns>
   		<placeholder>
   			<Label text="No Rules Machine loaded"/>
   		</placeholder>
-  		<TreeItem fx:id="tvRootItem" expanded="true">
-            <children>
-                <TreeItem fx:id="tvRulesItem"/>
-                <TreeItem fx:id="tvComputationsItem"/>
-            </children>
-        </TreeItem>
+  		<TreeItem fx:id="tvRootItem" expanded="true"/>
     </TreeTableView>
   </VBox> 
 </fx:root>

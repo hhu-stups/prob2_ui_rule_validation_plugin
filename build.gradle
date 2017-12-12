@@ -9,7 +9,7 @@ jar {
     baseName = 'Rulevalidation-Language-Plugin'
     version = '0.1.0'
     manifest {
-        attributes 'Plugin-Class' : 'de.heinzen.plugin.rulevalidation.RulevalidationPlugin',
+        attributes 'Plugin-Class' : 'de.heinzen.plugin.rulevalidation.RuleValidationPlugin',
                 'Plugin-Id' : 'RulevalidationLanguagePlugin',
                 'Plugin-Version' : '0.1.0',
                 'Plugin-Provider' : 'Christoph Heinzen',
