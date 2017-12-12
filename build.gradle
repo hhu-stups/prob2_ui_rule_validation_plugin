@@ -2,8 +2,11 @@ group 'de.heinzen.plugin'
 version '0.1'
 
 apply plugin: 'java'
+apply plugin: 'eclipse'
 
 sourceCompatibility = 1.8
+
+import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 jar {
     baseName = 'Rulevalidation-Language-Plugin'
@@ -37,4 +40,12 @@ repositories {
 dependencies {
     compileOnly project(':prob2-ui')
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+eclipse.classpath.file.whenMerged { classpath ->
+    classpath.entries.findResult { entry ->
+        if (entry.kind == 'con' && entry.path.contains('org.eclipse.jdt.launching.JRE_CONTAINER')) {
+            entry.accessRules.add(new AccessRule('accessible', 'javafx/**'))
+        }
+    }
 }
