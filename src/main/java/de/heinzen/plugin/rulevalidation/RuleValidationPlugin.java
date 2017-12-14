@@ -57,16 +57,17 @@ public class RuleValidationPlugin extends ProBPlugin{
 			} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())){
 				//the model changed -> rebuild view
 				rulesModel = (RulesModel) newTrace.getModel();
-				rulesView.build((RulesModel) newTrace.getModel(), newTrace);
+				rulesView.build((RulesModel) newTrace.getModel());
+				rulesView.updateTreeTable(newTrace);
 			} else {
-				//model doesn't changed -> update view
-				rulesView.updateTreeTable((RulesModel) newTrace.getModel(), newTrace);
+				//model didn't change -> update view
+				rulesView.updateTreeTable(newTrace);
 			}
 		};
 
+		traceListener.changed(null, null, currentTrace.get());
+
 		currentTrace.addListener(traceListener);
-
-
 	}
 
 	@Override

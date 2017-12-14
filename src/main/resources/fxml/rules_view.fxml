@@ -17,7 +17,7 @@
             <FontAwesomeIconView glyphName="SEARCH" styleClass="icon-basic" />
           </graphic>
         </Button>
-        <TextField fx:id="filterState" onAction="#handleFilterButton"
+        <TextField fx:id="filterTextField" onAction="#handleFilterButton"
                    promptText="Filter" HBox.hgrow="ALWAYS" prefHeight="${filterButton.width}" />
       </HBox>
     </AnchorPane>

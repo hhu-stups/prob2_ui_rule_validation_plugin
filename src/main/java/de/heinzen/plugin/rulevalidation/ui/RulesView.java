@@ -9,15 +9,10 @@ import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.Trace;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +31,11 @@ public class RulesView extends AnchorPane{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RulesView.class);
 
+	private static final IdentifierNotInitialised IDENTIFIER_NOT_INITIALISED = new IdentifierNotInitialised(null);
+
+	@FXML
+	private TextField filterTextField;
+
 	@FXML
 	private TreeTableView<Object> treeTableView;
 
@@ -48,8 +48,11 @@ public class RulesView extends AnchorPane{
 	private TreeItem<Object> tvRootItem;
 	private TreeItem<Object> tvRulesItem;
 	private TreeItem<Object> tvComputationsItem;
+
 	private Map<String, SimpleObjectProperty<Object>> ruleValueMap;
 	private Map<String, SimpleObjectProperty<Object>> computationValueMap;
+
+	private RulesModel model;
 
 	@FXML
 	public void initialize() {
@@ -63,7 +66,6 @@ public class RulesView extends AnchorPane{
 					setText((String)item);
 				else if (item instanceof AbstractOperation)
 					setText(((AbstractOperation)item).getName());
-				LOGGER.debug("Text is: " + getText());
 				setGraphic(null);
 			}
 		});
@@ -78,6 +80,7 @@ public class RulesView extends AnchorPane{
 				else if (item instanceof RuleResult)
 					setText(((RuleResult)item).getResultValue());
 				else if (item instanceof ComputationOperation)
+					//TODO
 					setText("Testi McTestface");
 				else if (item instanceof IdentifierNotInitialised)
 					setText(((IdentifierNotInitialised)item).getResult());
@@ -93,74 +96,58 @@ public class RulesView extends AnchorPane{
 			}
 			return null;
 		} );
-
-		createRootItems();
-
 	}
 
 	@FXML
 	public void handleFilterButton(){
 
+
+
 	}
 
 	public void clear(){
 
+		LOGGER.debug("clear RulesView!");
+
+		tvRootItem.getChildren().clear();
+
+
+
 	}
 
-	public void build(RulesModel model, Trace currentTrace) {
+	public void build(RulesModel model) {
 
-		Map<String, RuleOperation> rulesMap = new LinkedHashMap<>();
-		Map<String, ComputationOperation> computationMap = new LinkedHashMap<>();
+		LOGGER.debug("build RulesView!");
+
+		this.model = model;
+
+		Map<String, RuleOperation> rulesMap = new HashMap<>();
+		Map<String, ComputationOperation> computationsMap = new HashMap<>();
 
 		// sort operations by type
 		for (Map.Entry<String, AbstractOperation> entry : model.getRulesProject().getOperationsMap().entrySet()) {
 			if (entry.getValue() instanceof RuleOperation)
 				rulesMap.put(entry.getKey(), (RuleOperation) entry.getValue());
 			if (entry.getValue() instanceof ComputationOperation)
-				computationMap.put(entry.getKey(), (ComputationOperation) entry.getValue());
+				computationsMap.put(entry.getKey(), (ComputationOperation) entry.getValue());
 		}
 
-		//sort operations by name
-		List<String> sortedRules = new ArrayList<>(rulesMap.keySet());
-		Collections.sort(sortedRules);
-		List<String> sortedComputations = new ArrayList<>(computationMap.keySet());
-		Collections.sort(sortedComputations);
-
-		//get results
-		Map ruleResultMap = null;
-		Map computationResultMap = null;
-		if (currentTrace.getCurrentState().isInitialised()) {
-			RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentTrace.getCurrentState(), 10); //TODO check number of counterexamples
-			ruleResultMap = ruleResults.getRuleResultMap();
-			//TODO get computation results
-		}
-
+		tvRulesItem = new TreeItem<>("RULES");
+		tvComputationsItem = new TreeItem<>("COMPUTATIONS");
+		if (!rulesMap.isEmpty())
+			tvRootItem.getChildren().add(tvRulesItem);
+		if (!computationsMap.isEmpty())
+			tvRootItem.getChildren().add(tvComputationsItem);
 
 		ruleValueMap = new HashMap<>();
-		for (String ruleStr : sortedRules) {
-			TreeItem<Object> ruleTreeItem = new TreeItem<>(rulesMap.get(ruleStr));
-			if (ruleResultMap != null) {
-				ruleValueMap.put(ruleStr, new SimpleObjectProperty<>(ruleResultMap.get(ruleStr)));
-			} else {
-				ruleValueMap.put(ruleStr, new SimpleObjectProperty<>(new IdentifierNotInitialised(null)));
-			}
-			tvRulesItem.getChildren().add(ruleTreeItem);
-		}
-
 		computationValueMap = new HashMap<>();
-		for (String computationStr : sortedComputations) {
-			TreeItem<Object> computationTreeItem = new TreeItem<>(computationMap.get(computationStr));
-			if (computationResultMap != null) {
-				computationValueMap.put(computationStr, new SimpleObjectProperty<>(ruleResultMap.get(computationStr)));
-			} else {
-				computationValueMap.put(computationStr, new SimpleObjectProperty<>(new IdentifierNotInitialised(null)));
-			}
-			tvComputationsItem.getChildren().add(computationTreeItem);
-		}
-
+		tvRulesItem.getChildren().addAll(createItems(rulesMap, ruleValueMap));
+		tvComputationsItem.getChildren().addAll(createItems(computationsMap, computationValueMap));
 	}
 	
-	public void updateTreeTable(RulesModel model, Trace currentTrace) {
+	public void updateTreeTable(Trace currentTrace) {
+
+		LOGGER.debug("update RulesView!");
 
 		if (currentTrace.getCurrentState().isInitialised()) {
 			RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentTrace.getCurrentState(), 10); //TODO check number of counterexamples
@@ -168,20 +155,29 @@ public class RulesView extends AnchorPane{
 			for (String ruleStr : ruleValueMap.keySet()) {
 				ruleValueMap.get(ruleStr).set(ruleResultMap.get(ruleStr));
 			}
+			//TODO get computations results
 		} else {
-			for (String ruleStr : ruleValueMap.keySet()) {
-				ruleValueMap.get(ruleStr).set(new IdentifierNotInitialised(null));
+			for (SimpleObjectProperty<Object> prop : ruleValueMap.values()) {
+				prop.set(IDENTIFIER_NOT_INITIALISED);
+			}
+			for (SimpleObjectProperty<Object> prop : computationValueMap.values()) {
+				prop.set(IDENTIFIER_NOT_INITIALISED);
 			}
 		}
 		
 	}
 
-	private void createRootItems() {
-		tvRulesItem = new TreeItem<>("RULES");
-		tvComputationsItem = new TreeItem<>("COMPUTATIONS");
-		tvRootItem.getChildren().add(tvRulesItem);
-		tvRootItem.getChildren().add(tvComputationsItem);
+	private <T> List<TreeItem<Object>> createItems(Map<String, T> operations, Map<String, SimpleObjectProperty<Object>> props){
+		//sort
+		List<String> sortedOperations = new ArrayList<>(operations.keySet());
+		Collections.sort(sortedOperations);
+
+		List<TreeItem<Object>> ret = new ArrayList<>(sortedOperations.size());
+		for (String elementStr : sortedOperations) {
+			TreeItem<Object> operationTreeItem = new TreeItem<>(operations.get(elementStr));
+			props.put(elementStr, new SimpleObjectProperty<>(IDENTIFIER_NOT_INITIALISED));
+			ret.add(operationTreeItem);
+		}
+		return ret;
 	}
-
-
 }
