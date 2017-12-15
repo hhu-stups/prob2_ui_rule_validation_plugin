@@ -31,7 +31,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 
 	private void configureEmptyCell() {
 		setText(null);
-		setStyle("-fx-background-color:white");
+		setStyle(null);
 	}
 
 	private void configureForRuleResult(RuleResult result) {
@@ -44,7 +44,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				setStyle("-fx-background-color:palegreen");
 				break;
 			case NOT_CHECKED:
-				setStyle("-fx-background-color:white");
+				setStyle(null);
 				break;
 			case DISABLED:
 				setStyle("-fx-background-color:lightgray");
@@ -55,7 +55,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 
 	private void configureForNotInitialised(IdentifierNotInitialised item) {
 		setText(item.getResult());
-		setStyle("-fx-background-color:white");
+		setStyle(null);
 	}
 
 }
