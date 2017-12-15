@@ -56,37 +56,10 @@ public class RulesView extends AnchorPane{
 
 	@FXML
 	public void initialize() {
-		tvNameColumn.setCellFactory(column -> new TreeTableCell<Object, Object>(){
-			@Override
-			protected void updateItem(Object item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item == null || empty)
-					setText(null);
-				else if (item instanceof String)
-					setText((String)item);
-				else if (item instanceof AbstractOperation)
-					setText(((AbstractOperation)item).getName());
-				setGraphic(null);
-			}
-		});
+		tvNameColumn.setCellFactory(column -> new NameCell());
 		tvNameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getValue()));
 
-		tvValueColumn.setCellFactory(column -> new TreeTableCell<Object, Object>(){
-			@Override
-			protected void updateItem(Object item, boolean empty) {
-				super.updateItem(item, empty);
-				if (item == null || empty || item instanceof String)
-					setText(null);
-				else if (item instanceof RuleResult)
-					setText(((RuleResult)item).getResultValue());
-				else if (item instanceof ComputationOperation)
-					//TODO
-					setText("Testi McTestface");
-				else if (item instanceof IdentifierNotInitialised)
-					setText(((IdentifierNotInitialised)item).getResult());
-				setGraphic(null);
-			}
-		});
+		tvValueColumn.setCellFactory(column -> new ValueCell());
 		tvValueColumn.setCellValueFactory(param -> {
 			Object item = param.getValue().getValue();
 			if (item instanceof RuleOperation) {
