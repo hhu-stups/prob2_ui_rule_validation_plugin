@@ -3,6 +3,7 @@ package de.heinzen.plugin.rulevalidation;
 import de.heinzen.plugin.rulevalidation.ui.RulesView;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.Trace;
+import de.prob2.ui.layout.FontSize;
 import de.prob2.ui.plugin.ProBPlugin;
 import de.prob2.ui.plugin.ProBPluginManager;
 import de.prob2.ui.plugin.ProBPluginUIConnection;
@@ -78,7 +79,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	private void createTab(){
 		rulesTab = new Tab("Rules Machine");
-		rulesView = new RulesView();
+		rulesView = new RulesView(getInjector().getInstance(FontSize.class));
 		loadFXML("fxml/rules_view.fxml", rulesView);
 		rulesTab.setContent(rulesView);
 		getProBPluginUIConnection().addTab(rulesTab);
