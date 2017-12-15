@@ -22,7 +22,8 @@
                            promptText="Filter" HBox.hgrow="ALWAYS" prefHeight="${filterButton.width}" />
             </HBox>
         </AnchorPane>
-        <TreeTableView fx:id="treeTableView" VBox.vgrow="always" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" maxWidth="Infinity" showRoot="false">
+        <TreeTableView fx:id="treeTableView" VBox.vgrow="always" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" maxWidth="Infinity" showRoot="false">
             <columnResizePolicy>
                 <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
             </columnResizePolicy>

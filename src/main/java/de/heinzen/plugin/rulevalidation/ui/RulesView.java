@@ -74,6 +74,8 @@ public class RulesView extends AnchorPane{
 	private Map<String, SimpleObjectProperty<Object>> computationValueMap;
 
 	private RulesModel model;
+	private List<TreeItem<Object>> ruleItems;
+	private List<TreeItem<Object>> computationItems;
 
 	public RulesView(FontSize fontsize) {
 		super();
@@ -82,6 +84,7 @@ public class RulesView extends AnchorPane{
 
 	@FXML
 	public void initialize() {
+
 		tvNameColumn.setCellFactory(column -> new NameCell());
 		tvNameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getValue()));
 
@@ -105,8 +108,46 @@ public class RulesView extends AnchorPane{
 	@FXML
 	public void handleFilterButton(){
 
+		tvRootItem.getChildren().clear();
+		tvRulesItem.getChildren().clear();
+		tvComputationsItem.getChildren().clear();
 
+		String filterText = filterTextField.getText();
+		if (filterText != null && !filterText.isEmpty()) {
+			//filter
+			filterText = filterText.toLowerCase();
+			List<TreeItem<Object>> filteredRules = filterItem(filterText, ruleItems);
+			List<TreeItem<Object>> filteredComputations = filterItem(filterText, computationItems);
+			if (!filteredRules.isEmpty()) {
+				tvRulesItem.getChildren().addAll(filteredRules);
+				tvRootItem.getChildren().add(tvRulesItem);
+			}
+			if (!filteredComputations.isEmpty()) {
+				tvComputationsItem.getChildren().addAll(filteredComputations);
+				tvRootItem.getChildren().add(tvComputationsItem);
+			}
+		} else {
+			//don't filter, show all
+			if (!ruleItems.isEmpty()) {
+				tvRulesItem.getChildren().addAll(ruleItems);
+				tvRootItem.getChildren().add(tvRulesItem);
+			}
+			if (!computationItems.isEmpty()) {
+				tvComputationsItem.getChildren().addAll(computationItems);
+				tvRootItem.getChildren().add(tvComputationsItem);
+			}
+		}
+	}
 
+	private List<TreeItem<Object>> filterItem(String filterText, List<TreeItem<Object>> allItems) {
+		List<TreeItem<Object>> filtered = new ArrayList<>();
+		for (TreeItem<Object> item : allItems) {
+			String itemName = ((AbstractOperation) item.getValue()).getName().toLowerCase();
+			if (itemName.contains(filterText)) {
+				filtered.add(item);
+			}
+		}
+		return filtered;
 	}
 
 	@FXML
@@ -130,7 +171,7 @@ public class RulesView extends AnchorPane{
 		failLabel.setText("-");
 		disabledLabel.setText("-");
 
-
+		filterTextField.setText("");
 	}
 
 	public void build(RulesModel model) {
@@ -139,8 +180,8 @@ public class RulesView extends AnchorPane{
 
 		this.model = model;
 
-		Map<String, RuleOperation> rulesMap = new HashMap<>();
-		Map<String, ComputationOperation> computationsMap = new HashMap<>();
+		Map<String, AbstractOperation> rulesMap = new HashMap<>();
+		Map<String, AbstractOperation> computationsMap = new HashMap<>();
 
 		// sort operations by type
 		for (Map.Entry<String, AbstractOperation> entry : model.getRulesProject().getOperationsMap().entrySet()) {
@@ -159,8 +200,10 @@ public class RulesView extends AnchorPane{
 
 		ruleValueMap = new HashMap<>();
 		computationValueMap = new HashMap<>();
-		tvRulesItem.getChildren().addAll(createItems(rulesMap, ruleValueMap));
-		tvComputationsItem.getChildren().addAll(createItems(computationsMap, computationValueMap));
+		ruleItems = createItems(rulesMap, ruleValueMap);
+		computationItems = createItems(computationsMap, computationValueMap);
+		tvRulesItem.getChildren().addAll(ruleItems);
+		tvComputationsItem.getChildren().addAll(computationItems);
 
 		rulesLabel.setText(rulesMap.size() + "");
 	}
@@ -192,7 +235,7 @@ public class RulesView extends AnchorPane{
 		
 	}
 
-	private <T> List<TreeItem<Object>> createItems(Map<String, T> operations, Map<String, SimpleObjectProperty<Object>> props){
+	private List<TreeItem<Object>> createItems(Map<String, AbstractOperation> operations, Map<String, SimpleObjectProperty<Object>> props){
 		//sort
 		List<String> sortedOperations = new ArrayList<>(operations.keySet());
 		Collections.sort(sortedOperations);
