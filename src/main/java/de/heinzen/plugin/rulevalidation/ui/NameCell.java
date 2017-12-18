@@ -1,6 +1,7 @@
 package de.heinzen.plugin.rulevalidation.ui;
 
 import de.be4.classicalb.core.parser.rules.AbstractOperation;
+import de.prob.model.brules.RuleResult;
 import javafx.scene.control.TreeTableCell;
 
 /**
@@ -21,6 +22,8 @@ public class NameCell extends TreeTableCell<Object, Object>{
 			setText((String)item);
 		else if (item instanceof AbstractOperation)
 			setText(((AbstractOperation)item).getName());
+		else if (item instanceof RuleResult.CounterExample)
+			setText(((RuleResult.CounterExample)item).getErrorType() + "");
 		setGraphic(null);
 	}
 }

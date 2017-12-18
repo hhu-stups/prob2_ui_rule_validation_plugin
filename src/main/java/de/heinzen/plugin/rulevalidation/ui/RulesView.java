@@ -95,6 +95,12 @@ public class RulesView extends AnchorPane{
 				return ruleValueMap.get(((RuleOperation) item).getName());
 			} else if (item instanceof ComputationOperation) {
 				return computationValueMap.get(((ComputationOperation) item).getName());
+			} else if (item instanceof RuleResult.CounterExample) {
+				return new ReadOnlyObjectWrapper<>(item);
+			} else if (item instanceof String) {
+				if (ruleValueMap.containsKey(item)) {
+					return ruleValueMap.get(item);
+				}
 			}
 			return null;
 		} );
@@ -186,9 +192,9 @@ public class RulesView extends AnchorPane{
 		// sort operations by type
 		for (Map.Entry<String, AbstractOperation> entry : model.getRulesProject().getOperationsMap().entrySet()) {
 			if (entry.getValue() instanceof RuleOperation)
-				rulesMap.put(entry.getKey(), (RuleOperation) entry.getValue());
+				rulesMap.put(entry.getKey(), entry.getValue());
 			if (entry.getValue() instanceof ComputationOperation)
-				computationsMap.put(entry.getKey(), (ComputationOperation) entry.getValue());
+				computationsMap.put(entry.getKey(), entry.getValue());
 		}
 
 		tvRulesItem = new TreeItem<>("RULES");
@@ -242,8 +248,8 @@ public class RulesView extends AnchorPane{
 
 		List<TreeItem<Object>> ret = new ArrayList<>(sortedOperations.size());
 		for (String elementStr : sortedOperations) {
-			TreeItem<Object> operationTreeItem = new TreeItem<>(operations.get(elementStr));
 			props.put(elementStr, new SimpleObjectProperty<>(IDENTIFIER_NOT_INITIALISED));
+			TreeItem<Object> operationTreeItem = new OperationItem(operations.get(elementStr), props.get(elementStr));
 			ret.add(operationTreeItem);
 		}
 		return ret;

@@ -21,6 +21,8 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				configureEmptyCell();
 			else if (item instanceof RuleResult)
 				configureForRuleResult((RuleResult)item);
+			else if (item instanceof RuleResult.CounterExample)
+				setText(((RuleResult.CounterExample)item).getMessage());
 			else if (item instanceof ComputationOperation)
 				//TODO get correct Computation result
 				setText("Testi McTestface");
