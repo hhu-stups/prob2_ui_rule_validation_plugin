@@ -17,12 +17,10 @@ import java.util.Comparator;
  */
 public class OperationItem extends TreeItem<Object> {
 
-	private final SimpleObjectProperty<Object> resultProperty;
 
 	public OperationItem(AbstractOperation operation, SimpleObjectProperty<Object> resultProperty) {
 		super(operation);
-		this.resultProperty = resultProperty;
-		this.resultProperty.addListener((observable, oldValue, newValue) -> {
+		resultProperty.addListener((observable, oldValue, newValue) -> {
 			OperationItem.this.getChildren().clear();
 			if (newValue instanceof RuleResult) {
 				RuleResult ruleResult = (RuleResult) newValue;

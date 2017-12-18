@@ -1,7 +1,7 @@
 package de.heinzen.plugin.rulevalidation.ui;
 
-import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
+import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
 import javafx.scene.control.TreeTableCell;
 
@@ -23,13 +23,27 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				configureForRuleResult((RuleResult)item);
 			else if (item instanceof RuleResult.CounterExample)
 				setText(((RuleResult.CounterExample)item).getMessage());
-			else if (item instanceof ComputationOperation)
-				//TODO get correct Computation result
-				setText("Testi McTestface");
+			else if (item instanceof ComputationResults.RESULT)
+				configureForComputationResult((ComputationResults.RESULT)item);
 			else if (item instanceof IdentifierNotInitialised)
 				configureForNotInitialised((IdentifierNotInitialised)item);
 			setGraphic(null);
 		}
+
+	private void configureForComputationResult(ComputationResults.RESULT result) {
+		setText(result.toString());
+		switch (result) {
+			case EXECUTED:
+				setStyle("-fx-background-color:palegreen");
+				break;
+			case DISABLED:
+				setStyle("-fx-background-color:lightgray");
+				break;
+			case NOT_EXECUTED:
+				setStyle(null);
+				break;
+		}
+	}
 
 	private void configureEmptyCell() {
 		setText(null);

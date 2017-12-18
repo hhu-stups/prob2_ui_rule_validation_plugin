@@ -6,9 +6,11 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
+import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
+import de.prob.statespace.State;
 import de.prob.statespace.Trace;
 import de.prob2.ui.layout.FontSize;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -219,16 +221,8 @@ public class RulesView extends AnchorPane{
 		LOGGER.debug("update RulesView!");
 
 		if (currentTrace.getCurrentState().isInitialised()) {
-			RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentTrace.getCurrentState(), 10); //TODO check number of counterexamples
-			Map<String, RuleResult> ruleResultMap = ruleResults.getRuleResultMap();
-			for (String ruleStr : ruleValueMap.keySet()) {
-				ruleValueMap.get(ruleStr).set(ruleResultMap.get(ruleStr));
-			}
-			RuleResults.ResultSummary summary = ruleResults.getSummary();
-			notCheckedLabel.setText(summary.numberOfRulesNotChecked + "");
-			successLabel.setText(summary.numberOfRulesSucceeded + "");
-			failLabel.setText(summary.numberOfRulesFailed + "");
-			disabledLabel.setText(summary.numberOfRulesDisabled + "");
+			updateRuleResults(currentTrace.getCurrentState());
+			updateComputationResults(currentTrace.getCurrentState());
 			//TODO get computations results
 		} else {
 			for (SimpleObjectProperty<Object> prop : ruleValueMap.values()) {
@@ -239,6 +233,27 @@ public class RulesView extends AnchorPane{
 			}
 		}
 		
+	}
+
+	private void updateRuleResults(State currentState) {
+		RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentState, 10); //TODO check number of counterexamples
+		Map<String, RuleResult> ruleResultMap = ruleResults.getRuleResultMap();
+		for (String ruleStr : ruleValueMap.keySet()) {
+			ruleValueMap.get(ruleStr).set(ruleResultMap.get(ruleStr));
+		}
+		RuleResults.ResultSummary summary = ruleResults.getSummary();
+		notCheckedLabel.setText(summary.numberOfRulesNotChecked + "");
+		successLabel.setText(summary.numberOfRulesSucceeded + "");
+		failLabel.setText(summary.numberOfRulesFailed + "");
+		disabledLabel.setText(summary.numberOfRulesDisabled + "");
+	}
+
+
+	private void updateComputationResults(State currentState) {
+		ComputationResults computationResults = new ComputationResults(model.getRulesProject(), currentState);
+		for (String computation : computationValueMap.keySet()) {
+			computationValueMap.get(computation).set(computationResults.getResult(computation));
+		}
 	}
 
 	private List<TreeItem<Object>> createItems(Map<String, AbstractOperation> operations, Map<String, SimpleObjectProperty<Object>> props){
