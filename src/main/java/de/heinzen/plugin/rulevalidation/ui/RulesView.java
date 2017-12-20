@@ -167,7 +167,7 @@ public class RulesView extends AnchorPane{
 
 	public void clear(){
 
-		LOGGER.debug("clear RulesView!");
+		LOGGER.debug("Clear RulesView!");
 
 		tvRootItem.getChildren().clear();
 		if (ruleValueMap != null) ruleValueMap = null;
@@ -184,7 +184,7 @@ public class RulesView extends AnchorPane{
 
 	public void build(RulesModel model) {
 
-		LOGGER.debug("build RulesView!");
+		LOGGER.debug("Build RulesView!");
 
 		this.model = model;
 
@@ -218,7 +218,7 @@ public class RulesView extends AnchorPane{
 	
 	public void updateTreeTable(Trace currentTrace) {
 
-		LOGGER.debug("update RulesView!");
+		LOGGER.debug("Update RulesView!");
 
 		if (currentTrace.getCurrentState().isInitialised()) {
 			updateRuleResults(currentTrace.getCurrentState());
