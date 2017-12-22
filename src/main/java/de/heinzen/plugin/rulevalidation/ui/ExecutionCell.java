@@ -5,7 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
-
+import de.prob.model.brules.RuleState;
 import de.prob.model.brules.RulesModel;
 import de.prob2.ui.layout.FontSize;
 import javafx.event.ActionEvent;
@@ -58,7 +58,7 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	}
 
 	private void configureForRule(RuleResult result) {
-		if (result.getResultEnum() == RuleResult.RESULT_ENUM.NOT_CHECKED &&
+		if (result.getRuleState() == RuleState.NOT_CHECKED &&
 				result.getFailedDependencies().isEmpty()) {
 			Button btn = createButton(result.getRuleName());
 			setGraphic(btn);
