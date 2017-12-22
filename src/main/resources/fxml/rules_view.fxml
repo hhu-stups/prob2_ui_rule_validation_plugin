@@ -30,6 +30,7 @@
             <columns>
                 <TreeTableColumn fx:id="tvNameColumn" id="name" editable="false" minWidth="80.0" sortable="false" text="Name" />
                 <TreeTableColumn fx:id="tvValueColumn" id="value" editable="false" minWidth="80.0"  sortable="false" text="Value" />
+                <TreeTableColumn fx:id="tvExecuteColumn" id="execute" editable="false" minWidth="80.0"  sortable="false"/>
             </columns>
             <placeholder>
                 <Label text="No Rules Machine loaded"/>

@@ -36,7 +36,6 @@ public class OperationItem extends TreeItem<Object> {
 				}
 				//TODO check if we need to create items when the item is expanded
 			}
-			//TODO add computation result
 		});
 	}
 

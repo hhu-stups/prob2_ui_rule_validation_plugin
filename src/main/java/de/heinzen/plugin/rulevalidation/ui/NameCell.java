@@ -2,6 +2,7 @@ package de.heinzen.plugin.rulevalidation.ui;
 
 import de.be4.classicalb.core.parser.rules.AbstractOperation;
 import de.prob.model.brules.RuleResult;
+import javafx.geometry.Pos;
 import javafx.scene.control.TreeTableCell;
 
 /**
@@ -12,6 +13,10 @@ import javafx.scene.control.TreeTableCell;
  * @since 14.12.17
  */
 public class NameCell extends TreeTableCell<Object, Object>{
+
+	public NameCell() {
+		setAlignment(Pos.CENTER_LEFT);
+	}
 
 	@Override
 	protected void updateItem(Object item, boolean empty) {

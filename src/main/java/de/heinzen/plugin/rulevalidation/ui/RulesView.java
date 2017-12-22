@@ -4,24 +4,22 @@ package de.heinzen.plugin.rulevalidation.ui;
 import de.be4.classicalb.core.parser.rules.AbstractOperation;
 import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
+import de.heinzen.plugin.rulevalidation.RulesController;
+import de.heinzen.plugin.rulevalidation.RulesDataModel;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
-import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
-import de.prob.model.brules.RuleResults;
-import de.prob.model.brules.RulesModel;
-import de.prob.statespace.State;
-import de.prob.statespace.Trace;
 import de.prob2.ui.layout.FontSize;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -66,22 +64,26 @@ public class RulesView extends AnchorPane{
 	private TreeTableColumn<Object, Object> tvNameColumn;
 	@FXML
 	private TreeTableColumn<Object, Object> tvValueColumn;
+	@FXML
+	private TreeTableColumn<Object, Object> tvExecuteColumn;
 
 	@FXML
 	private TreeItem<Object> tvRootItem;
 	private TreeItem<Object> tvRulesItem;
 	private TreeItem<Object> tvComputationsItem;
 
-	private Map<String, SimpleObjectProperty<Object>> ruleValueMap;
-	private Map<String, SimpleObjectProperty<Object>> computationValueMap;
-
-	private RulesModel model;
+	//private RulesModel model;
 	private List<TreeItem<Object>> ruleItems;
 	private List<TreeItem<Object>> computationItems;
 
-	public RulesView(FontSize fontsize) {
+	private RulesDataModel dataModel;
+	private RulesController controller;
+
+	public RulesView(FontSize fontsize, RulesController controller) {
 		super();
 		this.fontsize = fontsize;
+		this.controller = controller;
+		this.dataModel = controller.getModel();
 	}
 
 	@FXML
@@ -94,60 +96,68 @@ public class RulesView extends AnchorPane{
 		tvValueColumn.setCellValueFactory(param -> {
 			Object item = param.getValue().getValue();
 			if (item instanceof RuleOperation) {
-				return ruleValueMap.get(((RuleOperation) item).getName());
+				return dataModel.getRuleValue(((RuleOperation) item).getName());
 			} else if (item instanceof ComputationOperation) {
-				return computationValueMap.get(((ComputationOperation) item).getName());
+				return dataModel.getComputationValue(((ComputationOperation) item).getName());
 			} else if (item instanceof RuleResult.CounterExample) {
 				return new ReadOnlyObjectWrapper<>(item);
 			} else if (item instanceof String) {
-				if (ruleValueMap.containsKey(item)) {
-					return ruleValueMap.get(item);
+				if (dataModel.getRuleValueMap().containsKey(item)) {
+					return dataModel.getRuleValue((String)item);
 				}
 			}
 			return null;
 		} );
 
+		tvExecuteColumn.setCellFactory(column -> new ExecutionCell(fontsize, controller));
+		tvExecuteColumn.setCellValueFactory(param -> {
+			Object item = param.getValue().getValue();
+			if (item instanceof RuleOperation) {
+				return dataModel.getRuleValue(((RuleOperation) item).getName());
+			} else if (item instanceof ComputationOperation) {
+				return dataModel.getComputationValue(((ComputationOperation) item).getName());
+			}
+			return null;
+		});
+
 		FontAwesomeIconView buttonGraphic = ((FontAwesomeIconView) (filterButton.getGraphic()));
 		buttonGraphic.setGlyphSize(fontsize.get());
 		buttonGraphic.glyphSizeProperty().bind(fontsize);
-
 	}
 
 	@FXML
 	public void handleFilterButton(){
+
+		LOGGER.debug("Filter Operations");
 
 		tvRootItem.getChildren().clear();
 		tvRulesItem.getChildren().clear();
 		tvComputationsItem.getChildren().clear();
 
 		String filterText = filterTextField.getText();
+		List<TreeItem<Object>> rulesToShow = null;
+		List<TreeItem<Object>> computationsToShow = null;
 		if (filterText != null && !filterText.isEmpty()) {
 			//filter
 			filterText = filterText.toLowerCase();
-			List<TreeItem<Object>> filteredRules = filterItem(filterText, ruleItems);
-			List<TreeItem<Object>> filteredComputations = filterItem(filterText, computationItems);
-			if (!filteredRules.isEmpty()) {
-				tvRulesItem.getChildren().addAll(filteredRules);
-				tvRootItem.getChildren().add(tvRulesItem);
-			}
-			if (!filteredComputations.isEmpty()) {
-				tvComputationsItem.getChildren().addAll(filteredComputations);
-				tvRootItem.getChildren().add(tvComputationsItem);
-			}
+			rulesToShow = filterItems(filterText, ruleItems);
+			computationsToShow = filterItems(filterText, computationItems);
 		} else {
 			//don't filter, show all
-			if (!ruleItems.isEmpty()) {
-				tvRulesItem.getChildren().addAll(ruleItems);
-				tvRootItem.getChildren().add(tvRulesItem);
-			}
-			if (!computationItems.isEmpty()) {
-				tvComputationsItem.getChildren().addAll(computationItems);
-				tvRootItem.getChildren().add(tvComputationsItem);
-			}
+			rulesToShow = ruleItems;
+			computationsToShow = computationItems;
+		}
+		if (!rulesToShow.isEmpty()) {
+			tvRulesItem.getChildren().addAll(rulesToShow);
+			tvRootItem.getChildren().add(tvRulesItem);
+		}
+		if (!computationsToShow.isEmpty()) {
+			tvComputationsItem.getChildren().addAll(computationsToShow);
+			tvRootItem.getChildren().add(tvComputationsItem);
 		}
 	}
 
-	private List<TreeItem<Object>> filterItem(String filterText, List<TreeItem<Object>> allItems) {
+	private List<TreeItem<Object>> filterItems(String filterText, List<TreeItem<Object>> allItems) {
 		List<TreeItem<Object>> filtered = new ArrayList<>();
 		for (TreeItem<Object> item : allItems) {
 			String itemName = ((AbstractOperation) item.getValue()).getName().toLowerCase();
@@ -170,8 +180,6 @@ public class RulesView extends AnchorPane{
 		LOGGER.debug("Clear RulesView!");
 
 		tvRootItem.getChildren().clear();
-		if (ruleValueMap != null) ruleValueMap = null;
-		if (computationValueMap != null) computationValueMap = null;
 
 		rulesLabel.setText("-");
 		notCheckedLabel.setText("-");
@@ -182,91 +190,37 @@ public class RulesView extends AnchorPane{
 		filterTextField.setText("");
 	}
 
-	public void build(RulesModel model) {
+	public void build() {
 
 		LOGGER.debug("Build RulesView!");
 
-		this.model = model;
-
-		Map<String, AbstractOperation> rulesMap = new HashMap<>();
-		Map<String, AbstractOperation> computationsMap = new HashMap<>();
-
-		// sort operations by type
-		for (Map.Entry<String, AbstractOperation> entry : model.getRulesProject().getOperationsMap().entrySet()) {
-			if (entry.getValue() instanceof RuleOperation)
-				rulesMap.put(entry.getKey(), entry.getValue());
-			if (entry.getValue() instanceof ComputationOperation)
-				computationsMap.put(entry.getKey(), entry.getValue());
-		}
-
-		tvRulesItem = new TreeItem<>("RULES");
-		tvComputationsItem = new TreeItem<>("COMPUTATIONS");
-		if (!rulesMap.isEmpty())
+		if (!dataModel.getRuleMap().isEmpty()) {
+			tvRulesItem = new TreeItem<>("RULES");
+			for (Map.Entry<String, RuleOperation> entry : dataModel.getRuleMap().entrySet()) {
+				LOGGER.debug("Add item for rule " + entry.getKey() + "   " + entry.getValue());
+				tvRulesItem.getChildren()
+						.add(new OperationItem(entry.getValue(), dataModel.getRuleValue(entry.getKey())));
+			}
 			tvRootItem.getChildren().add(tvRulesItem);
-		if (!computationsMap.isEmpty())
+		}
+		if (!dataModel.getComputationMap().isEmpty()) {
+			tvComputationsItem = new TreeItem<>("COMPUTATIONS");
+			for (Map.Entry<String, ComputationOperation> entry : dataModel.getComputationMap().entrySet()) {
+				LOGGER.debug("Add item for computation " + entry.getKey());
+				tvComputationsItem.getChildren()
+						.add(new OperationItem(entry.getValue(), dataModel.getComputationValue(entry.getKey())));
+			}
 			tvRootItem.getChildren().add(tvComputationsItem);
-
-		ruleValueMap = new HashMap<>();
-		computationValueMap = new HashMap<>();
-		ruleItems = createItems(rulesMap, ruleValueMap);
-		computationItems = createItems(computationsMap, computationValueMap);
-		tvRulesItem.getChildren().addAll(ruleItems);
-		tvComputationsItem.getChildren().addAll(computationItems);
-
-		rulesLabel.setText(rulesMap.size() + "");
-	}
-	
-	public void updateTreeTable(Trace currentTrace) {
-
-		LOGGER.debug("Update RulesView!");
-
-		if (currentTrace.getCurrentState().isInitialised()) {
-			updateRuleResults(currentTrace.getCurrentState());
-			updateComputationResults(currentTrace.getCurrentState());
-			//TODO get computations results
-		} else {
-			for (SimpleObjectProperty<Object> prop : ruleValueMap.values()) {
-				prop.set(IDENTIFIER_NOT_INITIALISED);
-			}
-			for (SimpleObjectProperty<Object> prop : computationValueMap.values()) {
-				prop.set(IDENTIFIER_NOT_INITIALISED);
-			}
 		}
-		
-	}
 
-	private void updateRuleResults(State currentState) {
-		RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentState, 10); //TODO check number of counterexamples
-		Map<String, RuleResult> ruleResultMap = ruleResults.getRuleResultMap();
-		for (String ruleStr : ruleValueMap.keySet()) {
-			ruleValueMap.get(ruleStr).set(ruleResultMap.get(ruleStr));
-		}
-		RuleResults.ResultSummary summary = ruleResults.getSummary();
-		notCheckedLabel.setText(summary.numberOfRulesNotChecked + "");
-		successLabel.setText(summary.numberOfRulesSucceeded + "");
-		failLabel.setText(summary.numberOfRulesFailed + "");
-		disabledLabel.setText(summary.numberOfRulesDisabled + "");
-	}
+		ruleItems = new ArrayList<>(tvRulesItem.getChildren());
+		computationItems = new ArrayList<>(tvComputationsItem.getChildren());
 
+		rulesLabel.setText(dataModel.getRuleMap().size() + "");
+		disabledLabel.textProperty().bind(dataModel.disabledRulesProperty());
+		failLabel.textProperty().bind(dataModel.failedRulesProperty());
+		notCheckedLabel.textProperty().bind(dataModel.notCheckedRulesProperty());
+		successLabel.textProperty().bind(dataModel.successRulesProperty());
 
-	private void updateComputationResults(State currentState) {
-		ComputationResults computationResults = new ComputationResults(model.getRulesProject(), currentState);
-		for (String computation : computationValueMap.keySet()) {
-			computationValueMap.get(computation).set(computationResults.getResult(computation));
-		}
-	}
-
-	private List<TreeItem<Object>> createItems(Map<String, AbstractOperation> operations, Map<String, SimpleObjectProperty<Object>> props){
-		//sort
-		List<String> sortedOperations = new ArrayList<>(operations.keySet());
-		Collections.sort(sortedOperations);
-
-		List<TreeItem<Object>> ret = new ArrayList<>(sortedOperations.size());
-		for (String elementStr : sortedOperations) {
-			props.put(elementStr, new SimpleObjectProperty<>(IDENTIFIER_NOT_INITIALISED));
-			TreeItem<Object> operationTreeItem = new OperationItem(operations.get(elementStr), props.get(elementStr));
-			ret.add(operationTreeItem);
-		}
-		return ret;
 	}
 }

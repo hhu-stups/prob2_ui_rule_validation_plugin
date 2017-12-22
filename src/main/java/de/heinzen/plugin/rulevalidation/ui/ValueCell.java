@@ -3,7 +3,10 @@ package de.heinzen.plugin.rulevalidation.ui;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
+import javafx.geometry.Pos;
 import javafx.scene.control.TreeTableCell;
+
+import java.util.Map;
 
 /**
  * Description of class
@@ -14,21 +17,25 @@ import javafx.scene.control.TreeTableCell;
  */
 public class ValueCell extends TreeTableCell<Object, Object>{
 
-		@Override
-		protected void updateItem(Object item, boolean empty) {
-			super.updateItem(item, empty);
-			if (item == null || empty || item instanceof String)
-				configureEmptyCell();
-			else if (item instanceof RuleResult)
-				configureForRuleResult((RuleResult)item);
-			else if (item instanceof RuleResult.CounterExample)
-				setText(((RuleResult.CounterExample)item).getMessage());
-			else if (item instanceof ComputationResults.RESULT)
-				configureForComputationResult((ComputationResults.RESULT)item);
-			else if (item instanceof IdentifierNotInitialised)
-				configureForNotInitialised((IdentifierNotInitialised)item);
-			setGraphic(null);
-		}
+	public ValueCell() {
+		setAlignment(Pos.CENTER_LEFT);
+	}
+
+	@Override
+	protected void updateItem(Object item, boolean empty) {
+		super.updateItem(item, empty);
+		if (item == null || empty || item instanceof String)
+			configureEmptyCell();
+		else if (item instanceof RuleResult)
+			configureForRuleResult((RuleResult)item);
+		else if (item instanceof RuleResult.CounterExample)
+			setText(((RuleResult.CounterExample)item).getMessage());
+		else if (item instanceof Map.Entry)
+			configureForComputationResult((ComputationResults.RESULT)((Map.Entry)item).getValue());
+		else if (item instanceof IdentifierNotInitialised)
+			configureForNotInitialised((IdentifierNotInitialised)item);
+		setGraphic(null);
+	}
 
 	private void configureForComputationResult(ComputationResults.RESULT result) {
 		setText(result.toString());

@@ -1,15 +1,12 @@
 package de.heinzen.plugin.rulevalidation;
 
 import de.heinzen.plugin.rulevalidation.ui.RulesView;
-import de.prob.model.brules.RulesModel;
-import de.prob.statespace.Trace;
 import de.prob2.ui.layout.FontSize;
 import de.prob2.ui.operations.OperationsView;
 import de.prob2.ui.plugin.ProBPlugin;
 import de.prob2.ui.plugin.ProBPluginManager;
 import de.prob2.ui.plugin.ProBPluginUIConnection;
 import de.prob2.ui.prob2fx.CurrentTrace;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.SplitPane;
@@ -38,12 +35,12 @@ public class RuleValidationPlugin extends ProBPlugin{
 	private Tab rulesTab;
 	private RulesView rulesView;
 
-	private ChangeListener<Trace> traceListener;
 	private TitledPane operationsPane;
 	private Accordion operationsAccordion;
 	private int operationsPosition;
 	private SplitPane operationsSplitPane;
 	private int operationsAccordionPosition;
+	private RulesController ruleController;
 
 	public RuleValidationPlugin(PluginWrapper wrapper, ProBPluginManager manager, ProBPluginUIConnection uiConnection) {
 		super(wrapper, manager, uiConnection);
@@ -57,6 +54,8 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	@Override
 	public void startPlugin() {
+
+		ruleController = new RulesController(getProBPluginUIConnection().getCurrentTrace());
 		//add the tab
 		createTab();
 		//remove operations view
@@ -78,29 +77,15 @@ public class RuleValidationPlugin extends ProBPlugin{
 				}
 			}
 		}
-
-		traceListener = (observable, oldTrace, newTrace) -> {
-			LOGGER.debug("Trace changed!");
-			if (newTrace == null || !(newTrace.getModel() instanceof RulesModel)) {
-				rulesView.clear();
-			} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())){
-				//the model changed -> rebuild view
-				rulesView.build((RulesModel) newTrace.getModel());
-				rulesView.updateTreeTable(newTrace);
-			} else {
-				//model didn't change -> update view
-				rulesView.updateTreeTable(newTrace);
-			}
-		};
-
-		traceListener.changed(null, null, currentTrace.get());
-
-		currentTrace.addListener(traceListener);
 	}
 
 	@Override
 	public void stopPlugin() {
+		LOGGER.debug("Remove Listener for the current Trace.");
+		ruleController.stop();
+		//remove tab
 		getProBPluginUIConnection().removeTab(rulesTab);
+		//restore OperationsView
 		if (operationsAccordion != null && operationsPane != null) {
 			LOGGER.debug("Add OperationsView to Accordion again.");
 			operationsAccordion.getPanes().add(operationsPosition, operationsPane);
@@ -109,14 +94,13 @@ public class RuleValidationPlugin extends ProBPlugin{
 				operationsSplitPane.getItems().add(operationsAccordionPosition, operationsAccordion);
 			}
 		}
-		LOGGER.debug("Remove Listener for the current Trace.");
-		currentTrace.removeListener(traceListener);
 	}
 
 	private void createTab(){
 		rulesTab = new Tab("Rules Machine");
-		rulesView = new RulesView(getInjector().getInstance(FontSize.class));
+		rulesView = new RulesView(getInjector().getInstance(FontSize.class), ruleController);
 		loadFXML("fxml/rules_view.fxml", rulesView);
+		ruleController.setView(rulesView);
 		rulesTab.setContent(rulesView);
 		getProBPluginUIConnection().addTab(rulesTab);
 	}
