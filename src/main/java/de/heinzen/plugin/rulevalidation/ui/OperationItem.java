@@ -2,6 +2,7 @@ package de.heinzen.plugin.rulevalidation.ui;
 
 import de.be4.classicalb.core.parser.rules.AbstractOperation;
 import de.prob.model.brules.RuleResult;
+import de.prob.model.brules.RuleState;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
 
@@ -24,7 +25,7 @@ public class OperationItem extends TreeItem<Object> {
 			OperationItem.this.getChildren().clear();
 			if (newValue instanceof RuleResult) {
 				RuleResult ruleResult = (RuleResult) newValue;
-				switch (ruleResult.getResultEnum()) {
+				switch (ruleResult.getRuleState()) {
 					case FAIL:
 					case NOT_CHECKED:
 						createRuleChildren(ruleResult);
@@ -40,7 +41,7 @@ public class OperationItem extends TreeItem<Object> {
 	}
 
 	private void createRuleChildren(RuleResult result) {
-		switch(result.getResultEnum()) {
+		switch(result.getRuleState()) {
 			case FAIL:
 				TreeItem<Object> violationItem = new TreeItem<>("VIOLATIONS");
 				result.getCounterExamples().sort(Comparator.comparingInt(RuleResult.CounterExample::getErrorType));

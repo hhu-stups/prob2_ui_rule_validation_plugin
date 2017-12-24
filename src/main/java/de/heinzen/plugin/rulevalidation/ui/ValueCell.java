@@ -58,8 +58,8 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 	}
 
 	private void configureForRuleResult(RuleResult result) {
-		setText(result.getResultValue());
-		switch (result.getResultEnum()) {
+		setText(result.getRuleState().name());
+		switch (result.getRuleState()) {
 			case FAIL:
 				setStyle("-fx-background-color:pink");
 				break;
@@ -74,7 +74,6 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				break;
 		}
 	}
-
 
 	private void configureForNotInitialised(IdentifierNotInitialised item) {
 		setText(item.getResult());

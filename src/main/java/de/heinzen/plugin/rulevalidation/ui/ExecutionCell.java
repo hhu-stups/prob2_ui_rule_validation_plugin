@@ -6,15 +6,15 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
 
-import de.prob.model.brules.RulesModel;
 import de.prob2.ui.layout.FontSize;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeTableCell;
 
 import java.util.Map;
+import java.util.Map.Entry;
+
+import static de.prob.model.brules.RuleState.NOT_CHECKED;
 
 /**
  * Description of class
@@ -35,18 +35,19 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void updateItem(Object item, boolean empty) {
 		super.updateItem(item, empty);
 		if (item instanceof RuleResult) {
 			configureForRule((RuleResult) item);
-		} else if (item instanceof Map.Entry) {
-			configureForComputation((Map.Entry<String, ComputationResults.RESULT>)item);
+		} else if (item instanceof Entry<?,?>) {
+			configureForComputation((Entry<String, ComputationResults.RESULT>)item);
 		} else {
 			setGraphic(null);
 		}
 	}
 
-	private void configureForComputation(Map.Entry<String, ComputationResults.RESULT> resultEntry) {
+	private void configureForComputation(Entry<String, ComputationResults.RESULT> resultEntry) {
 		ComputationResults.RESULT result = resultEntry.getValue();
 		String computation = resultEntry.getKey();
 		if (result == ComputationResults.RESULT.NOT_EXECUTED) {
@@ -58,7 +59,7 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	}
 
 	private void configureForRule(RuleResult result) {
-		if (result.getResultEnum() == RuleResult.RESULT_ENUM.NOT_CHECKED &&
+		if (result.getRuleState() == NOT_CHECKED &&
 				result.getFailedDependencies().isEmpty()) {
 			Button btn = createButton(result.getRuleName());
 			setGraphic(btn);

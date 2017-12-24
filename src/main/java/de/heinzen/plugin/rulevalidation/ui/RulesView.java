@@ -194,17 +194,19 @@ public class RulesView extends AnchorPane{
 
 		LOGGER.debug("Build RulesView!");
 
+
+		tvRulesItem = new TreeItem<>("RULES");
 		if (!dataModel.getRuleMap().isEmpty()) {
-			tvRulesItem = new TreeItem<>("RULES");
 			for (Map.Entry<String, RuleOperation> entry : dataModel.getRuleMap().entrySet()) {
 				LOGGER.debug("Add item for rule " + entry.getKey() + "   " + entry.getValue());
 				tvRulesItem.getChildren()
 						.add(new OperationItem(entry.getValue(), dataModel.getRuleValue(entry.getKey())));
 			}
 			tvRootItem.getChildren().add(tvRulesItem);
+
 		}
+		tvComputationsItem = new TreeItem<>("COMPUTATIONS");
 		if (!dataModel.getComputationMap().isEmpty()) {
-			tvComputationsItem = new TreeItem<>("COMPUTATIONS");
 			for (Map.Entry<String, ComputationOperation> entry : dataModel.getComputationMap().entrySet()) {
 				LOGGER.debug("Add item for computation " + entry.getKey());
 				tvComputationsItem.getChildren()
