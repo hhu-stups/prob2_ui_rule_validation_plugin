@@ -6,10 +6,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleState;
-import de.prob.model.brules.RulesModel;
 import de.prob2.ui.layout.FontSize;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeTableCell;
@@ -35,6 +32,7 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void updateItem(Object item, boolean empty) {
 		super.updateItem(item, empty);
 		if (item instanceof RuleResult) {
