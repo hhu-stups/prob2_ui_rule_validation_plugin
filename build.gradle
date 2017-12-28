@@ -23,9 +23,6 @@ jar {
     }
 }
 
-
-
-
 repositories {
     mavenCentral()
     jcenter()

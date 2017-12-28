@@ -4,8 +4,8 @@ import de.heinzen.plugin.rulevalidation.ui.RulesView;
 import de.prob2.ui.layout.FontSize;
 import de.prob2.ui.operations.OperationsView;
 import de.prob2.ui.plugin.ProBPlugin;
+import de.prob2.ui.plugin.ProBPluginHelper;
 import de.prob2.ui.plugin.ProBPluginManager;
-import de.prob2.ui.plugin.ProBPluginUIConnection;
 import de.prob2.ui.prob2fx.CurrentTrace;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
@@ -42,9 +42,9 @@ public class RuleValidationPlugin extends ProBPlugin{
 	private int operationsAccordionPosition;
 	private RulesController ruleController;
 
-	public RuleValidationPlugin(PluginWrapper wrapper, ProBPluginManager manager, ProBPluginUIConnection uiConnection) {
-		super(wrapper, manager, uiConnection);
-		this.currentTrace = uiConnection.getCurrentTrace();
+	public RuleValidationPlugin(PluginWrapper wrapper, ProBPluginManager manager, ProBPluginHelper helper) {
+		super(wrapper, manager, helper);
+		this.currentTrace = helper.getCurrentTrace();
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 	@Override
 	public void startPlugin() {
 
-		ruleController = new RulesController(getProBPluginUIConnection().getCurrentTrace());
+		ruleController = new RulesController(getProBPluginHelper().getCurrentTrace());
 		//add the tab
 		createTab();
 		//remove operations view
@@ -84,7 +84,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 		LOGGER.debug("Remove Listener for the current Trace.");
 		ruleController.stop();
 		//remove tab
-		getProBPluginUIConnection().removeTab(rulesTab);
+		getProBPluginHelper().removeTab(rulesTab);
 		//restore OperationsView
 		if (operationsAccordion != null && operationsPane != null) {
 			LOGGER.debug("Add OperationsView to Accordion again.");
@@ -102,7 +102,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 		loadFXML("fxml/rules_view.fxml", rulesView);
 		ruleController.setView(rulesView);
 		rulesTab.setContent(rulesView);
-		getProBPluginUIConnection().addTab(rulesTab);
+		getProBPluginHelper().addTab(rulesTab);
 	}
 
 	private <T> T loadFXML(String file, T controller) {

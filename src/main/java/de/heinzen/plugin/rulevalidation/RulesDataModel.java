@@ -5,7 +5,6 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
-import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.State;
