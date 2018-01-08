@@ -69,8 +69,8 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 		Button btn = new Button();
 
 		FontAwesomeIconView buttonGraphic = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
-		buttonGraphic.setGlyphSize(fontSize.get());
-		buttonGraphic.glyphSizeProperty().bind(fontSize);
+		buttonGraphic.setGlyphSize(fontSize.getFontSize());
+		buttonGraphic.glyphSizeProperty().bind(fontSize.fontSizeProperty());
 
 		btn.setGraphic(buttonGraphic);
 		btn.setStyle("-fx-background-color: #037875");

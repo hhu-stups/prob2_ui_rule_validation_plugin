@@ -1,6 +1,7 @@
 package de.heinzen.plugin.rulevalidation;
 
 import de.heinzen.plugin.rulevalidation.ui.RulesView;
+import de.prob.model.brules.RulesChecker;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.Trace;
 import de.prob2.ui.prob2fx.CurrentTrace;
@@ -17,11 +18,11 @@ import org.slf4j.LoggerFactory;
  */
 public class RulesController {
 
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(RulesController.class);
 
 	private final CurrentTrace currentTrace;
 	private RulesModel ruleModel;
+	private RulesChecker rulesChecker;
 
 	private ChangeListener<Trace> traceListener;
 	private RulesView rulesView;
@@ -37,12 +38,13 @@ public class RulesController {
 				if (newTrace == null || !(newTrace.getModel() instanceof RulesModel)) {
 					rulesView.clear();
 				} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())) {
-					//the model changed -> rebuild view
+					// the model changed -> rebuild view
 					ruleModel = (RulesModel) newTrace.getModel();
+					rulesChecker = new RulesChecker(newTrace);
 					initialize(ruleModel);
 					model.update(newTrace);
 				} else {
-					//model didn't change
+					// model didn't change
 					model.update(newTrace);
 				}
 			}
@@ -69,7 +71,13 @@ public class RulesController {
 		return model;
 	}
 
-	public void executeOperation(String operation) {
-		currentTrace.set(ruleModel.executeOperationAndDependencies(currentTrace.get(), operation));
+	public void executeOperation(String operationName) {
+		boolean operationHasBeenExecuted = rulesChecker.executeOperationAndDependencies(operationName);
+		currentTrace.set(rulesChecker.getCurrentTrace());
+	}
+
+	public void executeAllOperations() {
+		rulesChecker.executeAllOperations();
+		currentTrace.set(rulesChecker.getCurrentTrace());
 	}
 }

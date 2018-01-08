@@ -121,8 +121,8 @@ public class RulesView extends AnchorPane{
 		});
 
 		FontAwesomeIconView buttonGraphic = ((FontAwesomeIconView) (filterButton.getGraphic()));
-		buttonGraphic.setGlyphSize(fontsize.get());
-		buttonGraphic.glyphSizeProperty().bind(fontsize);
+		buttonGraphic.setGlyphSize(fontsize.getFontSize());
+		buttonGraphic.glyphSizeProperty().bind(fontsize.fontSizeProperty());
 	}
 
 	@FXML
