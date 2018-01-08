@@ -41,8 +41,9 @@ public class RulesController {
 					// the model changed -> rebuild view
 					ruleModel = (RulesModel) newTrace.getModel();
 					rulesChecker = new RulesChecker(newTrace);
+					rulesChecker.init();
 					initialize(ruleModel);
-					model.update(newTrace);
+					model.update(rulesChecker.getCurrentTrace());
 				} else {
 					// model didn't change
 					model.update(newTrace);
