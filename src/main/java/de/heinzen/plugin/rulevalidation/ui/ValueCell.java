@@ -2,6 +2,7 @@ package de.heinzen.plugin.rulevalidation.ui;
 
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
+import de.prob.model.brules.ComputationState;
 import de.prob.model.brules.RuleResult;
 import javafx.geometry.Pos;
 import javafx.scene.control.TreeTableCell;
@@ -31,13 +32,13 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 		else if (item instanceof RuleResult.CounterExample)
 			setText(((RuleResult.CounterExample)item).getMessage());
 		else if (item instanceof Map.Entry)
-			configureForComputationResult((ComputationResults.RESULT)((Map.Entry)item).getValue());
+			configureForComputationResult((ComputationState)((Map.Entry)item).getValue());
 		else if (item instanceof IdentifierNotInitialised)
 			configureForNotInitialised((IdentifierNotInitialised)item);
 		setGraphic(null);
 	}
 
-	private void configureForComputationResult(ComputationResults.RESULT result) {
+	private void configureForComputationResult(ComputationState result) {
 		setText(result.toString());
 		switch (result) {
 			case EXECUTED:

@@ -5,6 +5,7 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
+import de.prob.model.brules.ComputationState;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.State;
@@ -137,7 +138,7 @@ public class RulesDataModel {
 
 	private void updateComputationResults(State currentState) {
 		ComputationResults computationResults = new ComputationResults(model.getRulesProject(), currentState);
-		for (Map.Entry<String, ComputationResults.RESULT> computationResult : computationResults.getResults().entrySet()) {
+		for (Map.Entry<String, ComputationState> computationResult : computationResults.getResults().entrySet()) {
 			SimpleObjectProperty<Object> prop = computationValueMap.get(computationResult.getKey());
 			if (prop != null) {
 				prop.set(computationResult);

@@ -4,6 +4,7 @@ import de.heinzen.plugin.rulevalidation.RulesController;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.model.brules.ComputationResults;
+import de.prob.model.brules.ComputationState;
 import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleState;
 import de.prob2.ui.layout.FontSize;
@@ -38,16 +39,16 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 		if (item instanceof RuleResult) {
 			configureForRule((RuleResult) item);
 		} else if (item instanceof Map.Entry) {
-			configureForComputation((Map.Entry<String, ComputationResults.RESULT>)item);
+			configureForComputation((Map.Entry<String, ComputationState>)item);
 		} else {
 			setGraphic(null);
 		}
 	}
 
-	private void configureForComputation(Map.Entry<String, ComputationResults.RESULT> resultEntry) {
-		ComputationResults.RESULT result = resultEntry.getValue();
+	private void configureForComputation(Map.Entry<String, ComputationState> resultEntry) {
+		ComputationState result = resultEntry.getValue();
 		String computation = resultEntry.getKey();
-		if (result == ComputationResults.RESULT.NOT_EXECUTED) {
+		if (result == ComputationState.NOT_EXECUTED) {
 			Button btn = createButton(computation);
 			setGraphic(btn);
 		} else {
