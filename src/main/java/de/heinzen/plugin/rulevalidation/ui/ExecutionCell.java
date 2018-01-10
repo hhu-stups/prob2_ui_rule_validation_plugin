@@ -1,33 +1,27 @@
 package de.heinzen.plugin.rulevalidation.ui;
 
 import de.heinzen.plugin.rulevalidation.RulesController;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import de.prob.model.brules.ComputationResults;
 import de.prob.model.brules.ComputationState;
 import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleState;
-import de.prob2.ui.layout.FontSize;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
 
 import java.util.Map;
 
 /**
- * Description of class
- *
  * @author Christoph Heinzen
  * @version 0.1.0
  * @since 20.12.17
  */
 public class ExecutionCell extends TreeTableCell<Object, Object> {
 
-	private final FontSize fontSize;
 	private final RulesController controller;
 
-	public ExecutionCell(FontSize fontSize, RulesController controller) {
-		this.fontSize = fontSize;
+	ExecutionCell(RulesController controller) {
 		this.controller = controller;
 		setAlignment(Pos.CENTER_LEFT);
 	}
@@ -49,8 +43,7 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 		ComputationState result = resultEntry.getValue();
 		String computation = resultEntry.getKey();
 		if (result == ComputationState.NOT_EXECUTED) {
-			Button btn = createButton(computation);
-			setGraphic(btn);
+			setGraphic(createLabel(computation));
 		} else {
 			setGraphic(null);
 		}
@@ -59,23 +52,21 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	private void configureForRule(RuleResult result) {
 		if (result.getRuleState() == RuleState.NOT_CHECKED &&
 				result.getFailedDependencies().isEmpty()) {
-			Button btn = createButton(result.getRuleName());
-			setGraphic(btn);
+			setGraphic(createLabel(result.getRuleName()));
 		} else {
 			setGraphic(null);
 		}
 	}
 
-	private Button createButton(String operation) {
-		Button btn = new Button();
-
-		FontAwesomeIconView buttonGraphic = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
-		buttonGraphic.setGlyphSize(fontSize.getFontSize());
-		buttonGraphic.glyphSizeProperty().bind(fontSize.fontSizeProperty());
-
-		btn.setGraphic(buttonGraphic);
-		btn.setStyle("-fx-background-color: #037875");
-		btn.setOnAction(event -> controller.executeOperation(operation));
-		return btn;
+	private Label createLabel(String operation) {
+		Label label = new Label("Execute");
+		label.setUnderline(true);
+		label.setTextFill(Color.valueOf("#037875"));
+		label.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY) {
+				controller.executeOperation(operation);
+			}
+		});
+		return label;
 	}
 }

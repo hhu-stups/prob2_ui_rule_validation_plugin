@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Description of class
- *
  * @author Christoph Heinzen
  * @version 0.1.0
  * @since 20.12.17
@@ -37,6 +35,7 @@ public class RulesController {
 			if (rulesView != null) {
 				if (newTrace == null || !(newTrace.getModel() instanceof RulesModel)) {
 					rulesView.clear();
+					model.clear();
 				} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())) {
 					// the model changed -> rebuild view
 					ruleModel = (RulesModel) newTrace.getModel();

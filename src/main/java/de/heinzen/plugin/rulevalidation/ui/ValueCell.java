@@ -10,15 +10,13 @@ import javafx.scene.control.TreeTableCell;
 import java.util.Map;
 
 /**
- * Description of class
- *
  * @author Christoph Heinzen
  * @version 0.1.0
  * @since 14.12.17
  */
 public class ValueCell extends TreeTableCell<Object, Object>{
 
-	public ValueCell() {
+	ValueCell() {
 		setAlignment(Pos.CENTER_LEFT);
 	}
 
@@ -68,7 +66,12 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				setStyle("-fx-background-color:palegreen");
 				break;
 			case NOT_CHECKED:
-				setStyle(null);
+				if (result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) {
+					setText("NOT POSSIBLE");
+					setStyle("-fx-background-color:pink");
+				} else {
+					setStyle(null);
+				}
 				break;
 			case DISABLED:
 				setStyle("-fx-background-color:lightgray");

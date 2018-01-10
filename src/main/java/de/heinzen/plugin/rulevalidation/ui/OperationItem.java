@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * Description of class
- *
  * @author Christoph Heinzen
  * @version 0.1.0
  * @since 16.12.17

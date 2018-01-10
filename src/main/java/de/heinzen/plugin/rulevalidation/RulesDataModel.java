@@ -138,11 +138,18 @@ public class RulesDataModel {
 
 	private void updateComputationResults(State currentState) {
 		ComputationResults computationResults = new ComputationResults(model.getRulesProject(), currentState);
-		for (Map.Entry<String, ComputationState> computationResult : computationResults.getResults().entrySet()) {
+		computationResults.getResults().entrySet().forEach(computationResult -> {
 			SimpleObjectProperty<Object> prop = computationValueMap.get(computationResult.getKey());
 			if (prop != null) {
 				prop.set(computationResult);
 			}
-		}
+		});
+	}
+
+	public void clear() {
+		failedRules.set("-");
+		successRules.set("-");
+		notCheckedRules.set("-");
+		disabledRules.set("-");
 	}
 }

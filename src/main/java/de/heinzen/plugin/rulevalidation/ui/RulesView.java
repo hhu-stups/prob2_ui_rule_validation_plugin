@@ -32,8 +32,6 @@ import java.util.Map;
 public class RulesView extends AnchorPane{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RulesView.class);
-
-	private static final IdentifierNotInitialised IDENTIFIER_NOT_INITIALISED = new IdentifierNotInitialised(null);
 	private final FontSize fontsize;
 
 	@FXML
@@ -109,7 +107,7 @@ public class RulesView extends AnchorPane{
 			return null;
 		} );
 
-		tvExecuteColumn.setCellFactory(column -> new ExecutionCell(fontsize, controller));
+		tvExecuteColumn.setCellFactory(column -> new ExecutionCell(controller));
 		tvExecuteColumn.setCellValueFactory(param -> {
 			Object item = param.getValue().getValue();
 			if (item instanceof RuleOperation) {
@@ -169,25 +167,16 @@ public class RulesView extends AnchorPane{
 	}
 
 	@FXML
-	public void export(){
-
-
-
+	public void executeAll(){
+		controller.executeAllOperations();
 	}
 
 	public void clear(){
-
 		LOGGER.debug("Clear RulesView!");
 
 		tvRootItem.getChildren().clear();
-
-		rulesLabel.setText("-");
-		notCheckedLabel.setText("-");
-		successLabel.setText("-");
-		failLabel.setText("-");
-		disabledLabel.setText("-");
-
 		filterTextField.setText("");
+		rulesLabel.setText("-");
 	}
 
 	public void build() {

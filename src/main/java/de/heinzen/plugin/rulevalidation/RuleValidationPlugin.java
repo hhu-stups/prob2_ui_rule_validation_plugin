@@ -20,8 +20,6 @@ import java.net.URL;
 import java.util.Objects;
 
 /**
- * Description of class
- *
  * @author Christoph Heinzen
  * @version 0.1.0
  * @since 11.12.17
