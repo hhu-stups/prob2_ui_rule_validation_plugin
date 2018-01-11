@@ -7,7 +7,6 @@ import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.heinzen.plugin.rulevalidation.RulesController;
 import de.heinzen.plugin.rulevalidation.RulesDataModel;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.RuleResult;
 import de.prob2.ui.layout.FontSize;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -36,6 +35,9 @@ public class RulesView extends AnchorPane{
 
 	@FXML
 	private Button filterButton;
+
+	@FXML
+	private Button executeAllButton;
 
 	@FXML
 	private TextField filterTextField;
@@ -70,7 +72,6 @@ public class RulesView extends AnchorPane{
 	private TreeItem<Object> tvRulesItem;
 	private TreeItem<Object> tvComputationsItem;
 
-	//private RulesModel model;
 	private List<TreeItem<Object>> ruleItems;
 	private List<TreeItem<Object>> computationItems;
 
@@ -121,6 +122,8 @@ public class RulesView extends AnchorPane{
 		FontAwesomeIconView buttonGraphic = ((FontAwesomeIconView) (filterButton.getGraphic()));
 		buttonGraphic.setGlyphSize(fontsize.getFontSize());
 		buttonGraphic.glyphSizeProperty().bind(fontsize.fontSizeProperty());
+
+		executeAllButton.setDisable(true);
 	}
 
 	@FXML
@@ -177,17 +180,18 @@ public class RulesView extends AnchorPane{
 		tvRootItem.getChildren().clear();
 		filterTextField.setText("");
 		rulesLabel.setText("-");
+
+		executeAllButton.setDisable(true);
 	}
 
 	public void build() {
 
 		LOGGER.debug("Build RulesView!");
-
-
+		tvRootItem.getChildren().clear();
 		tvRulesItem = new TreeItem<>("RULES");
 		if (!dataModel.getRuleMap().isEmpty()) {
 			for (Map.Entry<String, RuleOperation> entry : dataModel.getRuleMap().entrySet()) {
-				LOGGER.debug("Add item for rule " + entry.getKey() + "   " + entry.getValue());
+				LOGGER.debug("Add item for rule {}   {}.", entry.getKey(), entry.getValue());
 				tvRulesItem.getChildren()
 						.add(new OperationItem(entry.getValue(), dataModel.getRuleValue(entry.getKey())));
 			}
@@ -197,7 +201,7 @@ public class RulesView extends AnchorPane{
 		tvComputationsItem = new TreeItem<>("COMPUTATIONS");
 		if (!dataModel.getComputationMap().isEmpty()) {
 			for (Map.Entry<String, ComputationOperation> entry : dataModel.getComputationMap().entrySet()) {
-				LOGGER.debug("Add item for computation " + entry.getKey());
+				LOGGER.debug("Add item for computation {}.", entry.getKey());
 				tvComputationsItem.getChildren()
 						.add(new OperationItem(entry.getValue(), dataModel.getComputationValue(entry.getKey())));
 			}
@@ -213,5 +217,6 @@ public class RulesView extends AnchorPane{
 		notCheckedLabel.textProperty().bind(dataModel.notCheckedRulesProperty());
 		successLabel.textProperty().bind(dataModel.successRulesProperty());
 
+		executeAllButton.setDisable(false);
 	}
 }

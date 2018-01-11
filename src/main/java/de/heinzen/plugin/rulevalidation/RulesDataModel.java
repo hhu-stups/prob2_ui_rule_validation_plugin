@@ -5,7 +5,6 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
-import de.prob.model.brules.ComputationState;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.State;
@@ -73,7 +72,7 @@ public class RulesDataModel {
 		return disabledRules;
 	}
 
-	public void update(Trace newTrace) {
+	void update(Trace newTrace) {
 		if (newTrace.getCurrentState().isInitialised()) {
 			updateRuleResults(newTrace.getCurrentState());
 			updateComputationResults(newTrace.getCurrentState());
@@ -87,7 +86,7 @@ public class RulesDataModel {
 		}
 	}
 
-	public void initialize(RulesModel newModel) {
+	void initialize(RulesModel newModel) {
 		this.model = newModel;
 
 		Map<String, RuleOperation> rulesMap = new HashMap<>();
@@ -146,7 +145,7 @@ public class RulesDataModel {
 		});
 	}
 
-	public void clear() {
+	void clear() {
 		failedRules.set("-");
 		successRules.set("-");
 		notCheckedRules.set("-");

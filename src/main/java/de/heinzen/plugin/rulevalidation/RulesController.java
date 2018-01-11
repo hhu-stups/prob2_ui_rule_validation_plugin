@@ -4,8 +4,26 @@ import de.heinzen.plugin.rulevalidation.ui.RulesView;
 import de.prob.model.brules.RulesChecker;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.Trace;
+import de.prob2.ui.internal.StageManager;
 import de.prob2.ui.prob2fx.CurrentTrace;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +37,18 @@ public class RulesController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RulesController.class);
 
 	private final CurrentTrace currentTrace;
+	private final StageManager stageManager;
 	private RulesModel ruleModel;
+	private RulesChecker rulesChecker;
 
 	private ChangeListener<Trace> traceListener;
 	private RulesView rulesView;
 	private final RulesDataModel model;
 
-	public RulesController(final CurrentTrace currentTrace) {
+	RulesController(final CurrentTrace currentTrace, final RuleValidationPlugin plugin, final StageManager stageManager) {
 		this.currentTrace = currentTrace;
 		this.model = new RulesDataModel();
+		this.stageManager = stageManager;
 
 		traceListener = (observable, oldTrace, newTrace) -> {
 			LOGGER.debug("Trace changed!");
@@ -35,13 +56,15 @@ public class RulesController {
 				if (newTrace == null || !(newTrace.getModel() instanceof RulesModel)) {
 					rulesView.clear();
 					model.clear();
+					plugin.restoreOperationsView();
 				} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())) {
 					// the model changed -> rebuild view
 					ruleModel = (RulesModel) newTrace.getModel();
-					RulesChecker rulesChecker = new RulesChecker(newTrace);
+					rulesChecker = new RulesChecker(newTrace);
 					rulesChecker.init();
 					initialize(ruleModel);
 					model.update(rulesChecker.getCurrentTrace());
+					plugin.removeOperationsView();
 				} else {
 					// model didn't change
 					model.update(newTrace);
@@ -57,11 +80,11 @@ public class RulesController {
 		rulesView.build();
 	}
 
-	public void stop() {
+	void stop() {
 		currentTrace.removeListener(traceListener);
 	}
 
-	public void setView(RulesView view) {
+	void setView(RulesView view) {
 		this.rulesView = view;
 		traceListener.changed(null, null, currentTrace.get());
 	}
@@ -70,15 +93,64 @@ public class RulesController {
 		return model;
 	}
 
-	public void executeOperation(String operationName) {
-		RulesChecker rulesChecker = new RulesChecker(currentTrace.get());
-		rulesChecker.executeOperationAndDependencies(operationName);
-		currentTrace.set(rulesChecker.getCurrentTrace());
+	public void executeOperation(final String operationName) {
+		execute(new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				rulesChecker = new RulesChecker(currentTrace.get());
+				rulesChecker.executeOperationAndDependencies(operationName);
+				return null;
+			}
+		}, operationName);
 	}
 
 	public void executeAllOperations() {
-		RulesChecker rulesChecker = new RulesChecker(currentTrace.get());
-		rulesChecker.executeAllOperations();
-		currentTrace.set(rulesChecker.getCurrentTrace());
+		execute(new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				rulesChecker = new RulesChecker(currentTrace.get());
+				rulesChecker.executeAllOperations();
+				return null;
+			}
+		}, null);
+
+	}
+
+	private void execute(Task<Void> task, String operation) {
+		final Stage progressAlert = createProgressAlert(operation);
+		progressAlert.setOnCloseRequest(event -> {
+			if (task.isRunning()) {
+				event.consume();
+			}
+		});
+		progressAlert.show();
+		task.setOnSucceeded(event -> {
+			LOGGER.debug("Task succeeded!");
+			currentTrace.set(rulesChecker.getCurrentTrace());
+			progressAlert.close();
+		});
+		task.setOnFailed(event -> {
+			LOGGER.debug("Task failed or cancelled!");
+			currentTrace.set(currentTrace.get());
+			progressAlert.close();
+		});
+		task.setOnCancelled(task.getOnFailed());
+		new Thread(task).start();
+
+	}
+
+	private Stage createProgressAlert(String rule) {
+		VBox content = new VBox();
+		content.setAlignment(Pos.CENTER);
+		content.getChildren().add(new ProgressIndicator());
+		content.getChildren().add(new Label(rule == null ? "Executing Rules..." : "Executing Rule " + rule));
+		content.setSpacing(20);
+		content.setPadding(new Insets(20,40,20,40));
+		content.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+		Stage stage = stageManager.makeStage(new Scene(content), null);
+		stage.setTitle("Execute");
+		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.initOwner(stageManager.getCurrent());
+		return stage;
 	}
 }
