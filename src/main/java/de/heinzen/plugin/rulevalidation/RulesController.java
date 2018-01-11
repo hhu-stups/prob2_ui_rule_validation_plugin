@@ -20,7 +20,6 @@ public class RulesController {
 
 	private final CurrentTrace currentTrace;
 	private RulesModel ruleModel;
-	private RulesChecker rulesChecker;
 
 	private ChangeListener<Trace> traceListener;
 	private RulesView rulesView;
@@ -39,7 +38,7 @@ public class RulesController {
 				} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())) {
 					// the model changed -> rebuild view
 					ruleModel = (RulesModel) newTrace.getModel();
-					rulesChecker = new RulesChecker(newTrace);
+					RulesChecker rulesChecker = new RulesChecker(newTrace);
 					rulesChecker.init();
 					initialize(ruleModel);
 					model.update(rulesChecker.getCurrentTrace());
@@ -72,11 +71,13 @@ public class RulesController {
 	}
 
 	public void executeOperation(String operationName) {
-		boolean operationHasBeenExecuted = rulesChecker.executeOperationAndDependencies(operationName);
+		RulesChecker rulesChecker = new RulesChecker(currentTrace.get());
+		rulesChecker.executeOperationAndDependencies(operationName);
 		currentTrace.set(rulesChecker.getCurrentTrace());
 	}
 
 	public void executeAllOperations() {
+		RulesChecker rulesChecker = new RulesChecker(currentTrace.get());
 		rulesChecker.executeAllOperations();
 		currentTrace.set(rulesChecker.getCurrentTrace());
 	}
