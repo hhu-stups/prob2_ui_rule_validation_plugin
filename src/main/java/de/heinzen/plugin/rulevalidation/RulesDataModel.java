@@ -11,7 +11,7 @@ import de.prob.model.brules.RulesModel;
 import de.prob.statespace.State;
 import de.prob.statespace.Trace;
 import javafx.beans.property.SimpleObjectProperty;
-
+import javafx.beans.property.SimpleStringProperty;
 import java.util.*;
 
 /**
@@ -27,49 +27,45 @@ public class RulesDataModel {
 
 	private RulesModel model;
 
+	// dynamic information about a rules machine
 	private Map<String, SimpleObjectProperty<Object>> ruleValueMap;
 	private Map<String, SimpleObjectProperty<Object>> computationValueMap;
+	// static information about a rules machine
 	private LinkedHashMap<String, RuleOperation> ruleMap;
 	private LinkedHashMap<String, ComputationOperation> computationMap;
 
-	private SimpleObjectProperty<String> failedRules = new SimpleObjectProperty<>("-");
-	private SimpleObjectProperty<String> successRules = new SimpleObjectProperty<>("-");
-	private SimpleObjectProperty<String> notCheckedRules = new SimpleObjectProperty<>("-");
-	private SimpleObjectProperty<String> disabledRules = new SimpleObjectProperty<>("-");
+	// Summary properties
+	private SimpleStringProperty failedRules = new SimpleStringProperty("-");
+	private SimpleStringProperty successRules = new SimpleStringProperty("-");
+	private SimpleStringProperty notCheckedRules = new SimpleStringProperty("-");
+	private SimpleStringProperty disabledRules = new SimpleStringProperty("-");
 
+	// Methods to access properties
 	public Map<String, SimpleObjectProperty<Object>> getRuleValueMap() {
 		return ruleValueMap;
 	}
-
 	public SimpleObjectProperty<Object> getRuleValue(String rule) {
 		return ruleValueMap.get(rule);
 	}
-
 	public LinkedHashMap<String, RuleOperation> getRuleMap() {
 		return ruleMap;
 	}
-
 	public LinkedHashMap<String, ComputationOperation> getComputationMap() {
 		return computationMap;
 	}
-
 	public SimpleObjectProperty<Object> getComputationValue(String computation) {
 		return computationValueMap.get(computation);
 	}
-
-	public SimpleObjectProperty<String> failedRulesProperty() {
+	public SimpleStringProperty failedRulesProperty() {
 		return failedRules;
 	}
-
-	public SimpleObjectProperty<String> successRulesProperty() {
+	public SimpleStringProperty successRulesProperty() {
 		return successRules;
 	}
-
-	public SimpleObjectProperty<String> notCheckedRulesProperty() {
+	public SimpleStringProperty notCheckedRulesProperty() {
 		return notCheckedRules;
 	}
-
-	public SimpleObjectProperty<String> disabledRulesProperty() {
+	public SimpleStringProperty disabledRulesProperty() {
 		return disabledRules;
 	}
 

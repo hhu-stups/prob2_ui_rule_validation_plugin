@@ -14,7 +14,7 @@ import javafx.scene.control.TreeTableCell;
  */
 public class NameCell extends TreeTableCell<Object, Object>{
 
-	public NameCell() {
+	NameCell() {
 		setAlignment(Pos.CENTER_LEFT);
 	}
 

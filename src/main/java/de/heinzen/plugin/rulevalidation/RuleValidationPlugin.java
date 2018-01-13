@@ -29,12 +29,16 @@ public class RuleValidationPlugin extends ProBPlugin{
 	private Tab rulesTab;
 	private RulesController ruleController;
 
+	// Fields to remove/restore the operations view
 	private TitledPane operationsPane;
 	private Accordion operationsAccordion;
 	private int operationsPosition;
 	private SplitPane operationsSplitPane;
 	private int operationsAccordionPosition;
 	private double[] operationsSplitPaneDivider;
+	private boolean opViewRemoved = false;
+
+	// Menu components
 	private Menu menu;
 	private MenuItem opViewMenuItem;
 
@@ -49,6 +53,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	@Override
 	public void startPlugin() {
+		LOGGER.debug("Starting the {}.", getName());
 		//add menu
 		createMenu();
 		ruleController = new RulesController(getProBPluginHelper().getCurrentTrace(), this,
@@ -60,7 +65,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	@Override
 	public void stopPlugin() {
-		LOGGER.debug("Remove Listener for the current Trace.");
+		LOGGER.debug("Stopping the {}.", getName());
 		ruleController.stop();
 		// remove tab
 		getProBPluginHelper().removeTab(rulesTab);
@@ -112,7 +117,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	void removeOperationsView() {
 		// only remove the op view if it is not already removed
-		if (operationsPane == null) {
+		if (!opViewRemoved) {
 			//remove operations view
 			OperationsView op = getInjector().getInstance(OperationsView.class);
 			operationsPane = getParent(op, TitledPane.class);
@@ -124,6 +129,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 					operationsAccordion.getPanes().remove(operationsPane);
 					LOGGER.debug("Removed OperationsView from surrounding Accordion.");
 					opViewMenuItem.setText("Restore Operations View");
+					opViewRemoved = true;
 					opViewMenuItem.setDisable(false);
 				}
 			}
@@ -143,7 +149,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	void restoreOperationsView(boolean menuDisable) {
 		//restore OperationsView
-		if (operationsAccordion != null && operationsPane != null) {
+		if (opViewRemoved) {
 			LOGGER.debug("Add OperationsView to Accordion again.");
 			operationsAccordion.getPanes().add(operationsPosition, operationsPane);
 			if (operationsSplitPane != null) {
@@ -153,6 +159,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 			}
 
 		}
+		opViewRemoved = false;
 		opViewMenuItem.setText("Remove Operations View");
 		opViewMenuItem.setDisable(menuDisable);
 		operationsPane = null;

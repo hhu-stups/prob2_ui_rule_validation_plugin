@@ -14,10 +14,10 @@ import java.util.Comparator;
  * @version 0.1.0
  * @since 16.12.17
  */
-public class OperationItem extends TreeItem<Object> {
+class OperationItem extends TreeItem<Object> {
 
 
-	public OperationItem(AbstractOperation operation, SimpleObjectProperty<Object> resultProperty) {
+	OperationItem(AbstractOperation operation, SimpleObjectProperty<Object> resultProperty) {
 		super(operation);
 		resultProperty.addListener((observable, oldValue, newValue) -> {
 			OperationItem.this.getChildren().clear();
@@ -33,7 +33,6 @@ public class OperationItem extends TreeItem<Object> {
 						OperationItem.this.getChildren().clear();
 						break;
 				}
-				//TODO check if we need to create items when the item is expanded
 			}
 		});
 	}
