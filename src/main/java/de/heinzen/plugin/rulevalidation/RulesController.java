@@ -54,11 +54,13 @@ public class RulesController {
 			LOGGER.debug("Trace changed!");
 			if (rulesView != null) {
 				if (newTrace == null || !(newTrace.getModel() instanceof RulesModel)) {
+					LOGGER.debug("No rules model in new trace!");
 					rulesView.clear();
 					model.clear();
-					plugin.restoreOperationsView();
+					plugin.restoreOperationsView(true);
 				} else if (oldTrace == null || !newTrace.getModel().equals(oldTrace.getModel())) {
 					// the model changed -> rebuild view
+					LOGGER.debug("New rules model in new trace!");
 					ruleModel = (RulesModel) newTrace.getModel();
 					rulesChecker = new RulesChecker(newTrace);
 					rulesChecker.init();
@@ -67,6 +69,7 @@ public class RulesController {
 					plugin.removeOperationsView();
 				} else {
 					// model didn't change
+					LOGGER.debug("Update rules view to new trace!");
 					model.update(newTrace);
 				}
 			}
@@ -140,11 +143,9 @@ public class RulesController {
 	}
 
 	private Stage createProgressAlert(String rule) {
-		VBox content = new VBox();
+		String text = rule == null ? "Executing Rules..." : "Executing Rule " + rule;
+		VBox content = new VBox(20, new ProgressIndicator(), new Label(text));
 		content.setAlignment(Pos.CENTER);
-		content.getChildren().add(new ProgressIndicator());
-		content.getChildren().add(new Label(rule == null ? "Executing Rules..." : "Executing Rule " + rule));
-		content.setSpacing(20);
 		content.setPadding(new Insets(20,40,20,40));
 		content.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 		Stage stage = stageManager.makeStage(new Scene(content), null);

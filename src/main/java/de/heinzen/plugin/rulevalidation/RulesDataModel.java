@@ -5,6 +5,7 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationResults;
+import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleResults;
 import de.prob.model.brules.RulesModel;
 import de.prob.statespace.State;
@@ -124,15 +125,21 @@ public class RulesDataModel {
 
 	private void updateRuleResults(State currentState) {
 		RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentState, 10); //TODO check number of counterexamples
+		int notCheckableCounter = 0;
 		for (String ruleStr : ruleValueMap.keySet()) {
-			ruleValueMap.get(ruleStr).set(ruleResults.getRuleResultMap().get(ruleStr));
+			RuleResult result = ruleResults.getRuleResultMap().get(ruleStr);
+			ruleValueMap.get(ruleStr).set(result);
+			if (result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) {
+				notCheckableCounter++;
+			}
 		}
 
 		//update summary
-		failedRules.set(ruleResults.getSummary().numberOfRulesFailed + "");
-		successRules.set(ruleResults.getSummary().numberOfRulesSucceeded + "");
-		notCheckedRules.set(ruleResults.getSummary().numberOfRulesNotChecked + "");
-		disabledRules.set(ruleResults.getSummary().numberOfRulesDisabled + "");
+		RuleResults.ResultSummary summary = ruleResults.getSummary();
+		failedRules.set(summary.numberOfRulesFailed + "");
+		successRules.set(summary.numberOfRulesSucceeded + "");
+		notCheckedRules.set((summary.numberOfRulesNotChecked - notCheckableCounter) + " (" + notCheckableCounter + ")");
+		disabledRules.set(summary.numberOfRulesDisabled + "");
 	}
 
 	private void updateComputationResults(State currentState) {

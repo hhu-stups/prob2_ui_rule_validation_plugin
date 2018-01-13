@@ -67,11 +67,9 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				break;
 			case NOT_CHECKED:
 				if (result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) {
-					setText("NOT POSSIBLE");
-					setStyle("-fx-background-color:pink");
-				} else {
-					setStyle(null);
+					setText("NOT CHECKABLE");
 				}
+				setStyle(null);
 				break;
 			case DISABLED:
 				setStyle("-fx-background-color:lightgray");

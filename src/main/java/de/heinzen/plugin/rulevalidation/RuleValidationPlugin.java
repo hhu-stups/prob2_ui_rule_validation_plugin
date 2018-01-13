@@ -9,10 +9,7 @@ import de.prob2.ui.plugin.ProBPluginManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginWrapper;
@@ -38,6 +35,8 @@ public class RuleValidationPlugin extends ProBPlugin{
 	private SplitPane operationsSplitPane;
 	private int operationsAccordionPosition;
 	private double[] operationsSplitPaneDivider;
+	private Menu menu;
+	private MenuItem opViewMenuItem;
 
 	public RuleValidationPlugin(PluginWrapper wrapper, ProBPluginManager manager, ProBPluginHelper helper) {
 		super(wrapper, manager, helper);
@@ -50,20 +49,39 @@ public class RuleValidationPlugin extends ProBPlugin{
 
 	@Override
 	public void startPlugin() {
+		//add menu
+		createMenu();
 		ruleController = new RulesController(getProBPluginHelper().getCurrentTrace(), this,
 				getProBPluginHelper().getStageManager());
 		//add the tab
 		createTab();
+
 	}
 
 	@Override
 	public void stopPlugin() {
 		LOGGER.debug("Remove Listener for the current Trace.");
 		ruleController.stop();
-		//remove tab
+		// remove tab
 		getProBPluginHelper().removeTab(rulesTab);
-		//make sure that the op view will be restored
-		restoreOperationsView();
+		// make sure that the op view will be restored
+		restoreOperationsView(true);
+		// remove menu item
+		getProBPluginHelper().removeMenu(menu);
+	}
+
+	private void createMenu() {
+		menu = new Menu("Rule Lang");
+		opViewMenuItem = new MenuItem("Restore Operations View");
+		opViewMenuItem.setOnAction(event -> {
+			if (operationsPane == null) {
+				removeOperationsView();
+			} else {
+				restoreOperationsView(false);
+			}
+		});
+		menu.getItems().add(opViewMenuItem);
+		getProBPluginHelper().addMenu(menu);
 	}
 
 	private void createTab(){
@@ -93,7 +111,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 	}
 
 	void removeOperationsView() {
-		// only remove the op vies if it is not already removed
+		// only remove the op view if it is not already removed
 		if (operationsPane == null) {
 			//remove operations view
 			OperationsView op = getInjector().getInstance(OperationsView.class);
@@ -105,6 +123,8 @@ public class RuleValidationPlugin extends ProBPlugin{
 					operationsPosition = operationsAccordion.getPanes().indexOf(operationsPane);
 					operationsAccordion.getPanes().remove(operationsPane);
 					LOGGER.debug("Removed OperationsView from surrounding Accordion.");
+					opViewMenuItem.setText("Restore Operations View");
+					opViewMenuItem.setDisable(false);
 				}
 			}
 			//if Accordion is empty remove it
@@ -116,11 +136,12 @@ public class RuleValidationPlugin extends ProBPlugin{
 					operationsSplitPaneDivider = operationsSplitPane.getDividerPositions();
 					operationsSplitPane.getItems().remove(operationsAccordion);
 				}
+
 			}
 		}
 	}
 
-	void restoreOperationsView() {
+	void restoreOperationsView(boolean menuDisable) {
 		//restore OperationsView
 		if (operationsAccordion != null && operationsPane != null) {
 			LOGGER.debug("Add OperationsView to Accordion again.");
@@ -130,7 +151,10 @@ public class RuleValidationPlugin extends ProBPlugin{
 				operationsSplitPane.getItems().add(operationsAccordionPosition, operationsAccordion);
 				operationsSplitPane.setDividerPositions(operationsSplitPaneDivider);
 			}
+
 		}
+		opViewMenuItem.setText("Remove Operations View");
+		opViewMenuItem.setDisable(menuDisable);
 		operationsPane = null;
 		operationsAccordion = null;
 		operationsSplitPane = null;
