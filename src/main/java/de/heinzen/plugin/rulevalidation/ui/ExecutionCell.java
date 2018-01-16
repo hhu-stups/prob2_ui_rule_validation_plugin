@@ -1,9 +1,9 @@
 package de.heinzen.plugin.rulevalidation.ui;
 
 import de.heinzen.plugin.rulevalidation.RulesController;
-import de.prob.model.brules.ComputationState;
+import de.prob.model.brules.ComputationStatus;
 import de.prob.model.brules.RuleResult;
-import de.prob.model.brules.RuleState;
+import de.prob.model.brules.RuleStatus;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeTableCell;
@@ -33,16 +33,16 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 		if (item instanceof RuleResult) {
 			configureForRule((RuleResult) item);
 		} else if (item instanceof Map.Entry) {
-			configureForComputation((Map.Entry<String, ComputationState>)item);
+			configureForComputation((Map.Entry<String, ComputationStatus>)item);
 		} else {
 			setGraphic(null);
 		}
 	}
 
-	private void configureForComputation(Map.Entry<String, ComputationState> resultEntry) {
-		ComputationState result = resultEntry.getValue();
+	private void configureForComputation(Map.Entry<String, ComputationStatus> resultEntry) {
+		ComputationStatus result = resultEntry.getValue();
 		String computation = resultEntry.getKey();
-		if (result == ComputationState.NOT_EXECUTED) {
+		if (result == ComputationStatus.NOT_EXECUTED) {
 			setGraphic(createLabel(computation));
 		} else {
 			setGraphic(null);
@@ -50,7 +50,7 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	}
 
 	private void configureForRule(RuleResult result) {
-		if (result.getRuleState() == RuleState.NOT_CHECKED &&
+		if (result.getRuleState() == RuleStatus.NOT_CHECKED &&
 				result.getFailedDependencies().isEmpty()) {
 			setGraphic(createLabel(result.getRuleName()));
 		} else {
