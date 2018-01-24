@@ -1,5 +1,6 @@
 package de.heinzen.plugin.rulevalidation.ui;
 
+import de.heinzen.plugin.rulevalidation.RulesDataModel;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationStatus;
 import de.prob.model.brules.RuleResult;
@@ -15,8 +16,11 @@ import java.util.Map;
  */
 public class ValueCell extends TreeTableCell<Object, Object>{
 
-	ValueCell() {
+	private final RulesDataModel model;
+
+	ValueCell(RulesDataModel model) {
 		setAlignment(Pos.CENTER_LEFT);
+		this.model = model;
 	}
 
 	@Override
@@ -29,13 +33,13 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 		else if (item instanceof RuleResult.CounterExample)
 			setText(((RuleResult.CounterExample)item).getMessage());
 		else if (item instanceof Map.Entry)
-			configureForComputationResult((ComputationStatus)((Map.Entry)item).getValue());
+			configureForComputationResult((String)((Map.Entry)item).getKey(), (ComputationStatus)((Map.Entry)item).getValue());
 		else if (item instanceof IdentifierNotInitialised)
 			configureForNotInitialised((IdentifierNotInitialised)item);
 		setGraphic(null);
 	}
 
-	private void configureForComputationResult(ComputationStatus result) {
+	private void configureForComputationResult(String op, ComputationStatus result) {
 		setText(result.toString());
 		switch (result) {
 			case EXECUTED:
@@ -45,6 +49,9 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				setStyle("-fx-background-color:lightgray");
 				break;
 			case NOT_EXECUTED:
+				if (!model.getFailedDependenciesOfComputation(op).isEmpty()) {
+					setText("NOT_EXECUTABLE");
+				}
 				setStyle(null);
 				break;
 		}

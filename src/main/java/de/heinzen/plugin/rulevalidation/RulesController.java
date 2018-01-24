@@ -68,7 +68,7 @@ public class RulesController {
 					model.update(rulesChecker.getCurrentTrace());
 					plugin.removeOperationsView();
 				} else {
-					// model didn't change
+					// model didn't change -> update view
 					LOGGER.debug("Update rules view to new trace!");
 					model.update(newTrace);
 				}

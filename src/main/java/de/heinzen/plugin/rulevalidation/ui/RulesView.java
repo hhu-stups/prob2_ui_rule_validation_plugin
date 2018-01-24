@@ -91,7 +91,7 @@ public class RulesView extends AnchorPane{
 		tvNameColumn.setCellFactory(column -> new NameCell());
 		tvNameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getValue()));
 
-		tvValueColumn.setCellFactory(column -> new ValueCell());
+		tvValueColumn.setCellFactory(column -> new ValueCell(dataModel));
 		tvValueColumn.setCellValueFactory(param -> {
 			Object item = param.getValue().getValue();
 			if (item instanceof RuleOperation) {
@@ -103,6 +103,8 @@ public class RulesView extends AnchorPane{
 			} else if (item instanceof String) {
 				if (dataModel.getRuleValueMap().containsKey(item)) {
 					return dataModel.getRuleValue((String)item);
+				} else if (dataModel.getComputationValueMap().containsKey(item)) {
+					return dataModel.getComputationValue((String) item);
 				}
 			}
 			return null;
@@ -193,7 +195,7 @@ public class RulesView extends AnchorPane{
 			for (Map.Entry<String, RuleOperation> entry : dataModel.getRuleMap().entrySet()) {
 				LOGGER.debug("Add item for rule {}   {}.", entry.getKey(), entry.getValue());
 				tvRulesItem.getChildren()
-						.add(new OperationItem(entry.getValue(), dataModel.getRuleValue(entry.getKey())));
+						.add(new OperationItem(entry.getValue(), dataModel.getRuleValue(entry.getKey()), dataModel));
 			}
 			tvRootItem.getChildren().add(tvRulesItem);
 
@@ -203,7 +205,7 @@ public class RulesView extends AnchorPane{
 			for (Map.Entry<String, ComputationOperation> entry : dataModel.getComputationMap().entrySet()) {
 				LOGGER.debug("Add item for computation {}.", entry.getKey());
 				tvComputationsItem.getChildren()
-						.add(new OperationItem(entry.getValue(), dataModel.getComputationValue(entry.getKey())));
+						.add(new OperationItem(entry.getValue(), dataModel.getComputationValue(entry.getKey()), dataModel));
 			}
 			tvRootItem.getChildren().add(tvComputationsItem);
 		}

@@ -4,10 +4,7 @@ import de.be4.classicalb.core.parser.rules.AbstractOperation;
 import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.prob.animator.domainobjects.IdentifierNotInitialised;
-import de.prob.model.brules.ComputationStatuses;
-import de.prob.model.brules.RuleResult;
-import de.prob.model.brules.RuleResults;
-import de.prob.model.brules.RulesModel;
+import de.prob.model.brules.*;
 import de.prob.statespace.State;
 import de.prob.statespace.Trace;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,10 +24,10 @@ public class RulesDataModel {
 
 	private RulesModel model;
 
-	// dynamic information about a rules machine
+	// dynamic information about the loaded rules machine
 	private Map<String, SimpleObjectProperty<Object>> ruleValueMap;
 	private Map<String, SimpleObjectProperty<Object>> computationValueMap;
-	// static information about a rules machine
+	// static information about the loaded rules machine
 	private LinkedHashMap<String, RuleOperation> ruleMap;
 	private LinkedHashMap<String, ComputationOperation> computationMap;
 
@@ -50,6 +47,9 @@ public class RulesDataModel {
 	public LinkedHashMap<String, RuleOperation> getRuleMap() {
 		return ruleMap;
 	}
+	public Map<String, SimpleObjectProperty<Object>> getComputationValueMap() {
+		return computationValueMap;
+	}
 	public LinkedHashMap<String, ComputationOperation> getComputationMap() {
 		return computationMap;
 	}
@@ -67,20 +67,6 @@ public class RulesDataModel {
 	}
 	public SimpleStringProperty disabledRulesProperty() {
 		return disabledRules;
-	}
-
-	void update(Trace newTrace) {
-		if (newTrace.getCurrentState().isInitialised()) {
-			updateRuleResults(newTrace.getCurrentState());
-			updateComputationResults(newTrace.getCurrentState());
-		} else {
-			for (SimpleObjectProperty<Object> prop : ruleValueMap.values()) {
-				prop.set(IDENTIFIER_NOT_INITIALISED);
-			}
-			for (SimpleObjectProperty<Object> prop : computationValueMap.values()) {
-				prop.set(IDENTIFIER_NOT_INITIALISED);
-			}
-		}
 	}
 
 	void initialize(RulesModel newModel) {
@@ -103,6 +89,27 @@ public class RulesDataModel {
 		computationValueMap = new LinkedHashMap<>(computationsMap.size());
 		computationMap = new LinkedHashMap<>(computationsMap.size());
 		initializeValueMap(computationsMap, computationMap, computationValueMap);
+	}
+
+	void update(Trace newTrace) {
+		if (newTrace.getCurrentState().isInitialised()) {
+			updateRuleResults(newTrace.getCurrentState());
+			updateComputationResults(newTrace.getCurrentState());
+		} else {
+			for (SimpleObjectProperty<Object> prop : ruleValueMap.values()) {
+				prop.set(IDENTIFIER_NOT_INITIALISED);
+			}
+			for (SimpleObjectProperty<Object> prop : computationValueMap.values()) {
+				prop.set(IDENTIFIER_NOT_INITIALISED);
+			}
+		}
+	}
+
+	void clear() {
+		failedRules.set("-");
+		successRules.set("-");
+		notCheckedRules.set("-");
+		disabledRules.set("-");
 	}
 
 	private <T> void initializeValueMap(Map<String, T> operations,
@@ -139,7 +146,7 @@ public class RulesDataModel {
 	}
 
 	private void updateComputationResults(State currentState) {
-		ComputationStatuses computationResults = new ComputationStatuses(model.getRulesProject(), currentState);
+		ComputationStatues computationResults = new ComputationStatues(model.getRulesProject(), currentState);
 		computationResults.getResults().entrySet().forEach(computationResult -> {
 			SimpleObjectProperty<Object> prop = computationValueMap.get(computationResult.getKey());
 			if (prop != null) {
@@ -148,10 +155,39 @@ public class RulesDataModel {
 		});
 	}
 
-	void clear() {
-		failedRules.set("-");
-		successRules.set("-");
-		notCheckedRules.set("-");
-		disabledRules.set("-");
+	public List<String> getFailedDependenciesOfComputation(String comp) {
+		ComputationOperation operation = getComputationMap().get(comp);
+		List<String> failedDependencies = new ArrayList<>();
+ 		for (AbstractOperation op : operation.getTransitiveDependencies()) {
+			if (op instanceof RuleOperation && ruleValueMap.containsKey(op.getName()) &&
+					getRuleValue(op.getName()).get() instanceof RuleResult) {
+				RuleResult ruleResult = (RuleResult)getRuleValue(op.getName()).get();
+				if (ruleResult.getRuleState() == RuleStatus.FAIL) {
+					failedDependencies.add(op.getName());
+				}
+			}
+		}
+		return failedDependencies;
+	}
+
+	public List<String> getNotCheckedDependenciesOfComputation(String comp) {
+		ComputationOperation operation = getComputationMap().get(comp);
+		List<String> notCheckedDependencies = new ArrayList<>();
+		for (AbstractOperation op : operation.getTransitiveDependencies()) {
+			if (op instanceof RuleOperation && ruleValueMap.containsKey(op.getName()) &&
+					getRuleValue(op.getName()).get() instanceof RuleResult) {
+				RuleResult ruleResult = (RuleResult)getRuleValue(op.getName()).get();
+				if (ruleResult.getRuleState() == RuleStatus.NOT_CHECKED) {
+					notCheckedDependencies.add(op.getName());
+				}
+			} /*else if (op instanceof ComputationOperation && computationValueMap.containsKey(op.getName()) &&
+					getComputationValue(op.getName()).get() instanceof Map.Entry) {
+				Object stateObject = getComputationValue(op.getName()).get();
+				if (stateObject instanceof ComputationStatus && (ComputationStatus)stateObject == ComputationStatus.NOT_EXECUTED) {
+					notCheckedDependencies.add(op.getName());
+				}
+			}*/
+		}
+		return notCheckedDependencies;
 	}
 }
