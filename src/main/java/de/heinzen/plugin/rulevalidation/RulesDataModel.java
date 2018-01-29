@@ -127,12 +127,13 @@ public class RulesDataModel {
 	}
 
 	private void updateRuleResults(State currentState) {
-		RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentState, 10); //TODO check number of counterexamples
+		RuleResults ruleResults = new RuleResults(model.getRulesProject(), currentState, 10);
 		int notCheckableCounter = 0;
 		for (String ruleStr : ruleValueMap.keySet()) {
 			RuleResult result = ruleResults.getRuleResultMap().get(ruleStr);
 			ruleValueMap.get(ruleStr).set(result);
-			if (result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) {
+			if ((result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) ||
+					!getDisabledDependencies(ruleStr).isEmpty()) {
 				notCheckableCounter++;
 			}
 		}
@@ -146,7 +147,7 @@ public class RulesDataModel {
 	}
 
 	private void updateComputationResults(State currentState) {
-		ComputationStatues computationResults = new ComputationStatues(model.getRulesProject(), currentState);
+		ComputationStatuses computationResults = new ComputationStatuses(model.getRulesProject(), currentState);
 		computationResults.getResults().entrySet().forEach(computationResult -> {
 			SimpleObjectProperty<Object> prop = computationValueMap.get(computationResult.getKey());
 			if (prop != null) {
@@ -180,14 +181,43 @@ public class RulesDataModel {
 				if (ruleResult.getRuleState() == RuleStatus.NOT_CHECKED) {
 					notCheckedDependencies.add(op.getName());
 				}
-			} /*else if (op instanceof ComputationOperation && computationValueMap.containsKey(op.getName()) &&
+			} else if (op instanceof ComputationOperation && computationValueMap.containsKey(op.getName()) &&
 					getComputationValue(op.getName()).get() instanceof Map.Entry) {
 				Object stateObject = getComputationValue(op.getName()).get();
 				if (stateObject instanceof ComputationStatus && (ComputationStatus)stateObject == ComputationStatus.NOT_EXECUTED) {
 					notCheckedDependencies.add(op.getName());
 				}
-			}*/
+			}
 		}
+		Collections.sort(notCheckedDependencies);
 		return notCheckedDependencies;
+	}
+
+	public List<String> getDisabledDependencies(String operation) {
+		Set<AbstractOperation> dependencies = new HashSet<>();
+		List<String> disableDependencies = new ArrayList<>();
+		if (ruleMap.containsKey(operation)) {
+			dependencies = ruleMap.get(operation).getTransitiveDependencies();
+		} else if (computationMap.containsKey(operation)) {
+			dependencies = computationMap.get(operation).getTransitiveDependencies();
+		}
+		for (AbstractOperation op : dependencies) {
+			if (op instanceof RuleOperation && ruleValueMap.containsKey(op.getName()) &&
+					getRuleValue(op.getName()).get() instanceof RuleResult) {
+				RuleResult ruleResult = (RuleResult)getRuleValue(op.getName()).get();
+				if (ruleResult.getRuleState() == RuleStatus.DISABLED) {
+					disableDependencies.add(op.getName());
+				}
+			} else if (op instanceof ComputationOperation && computationValueMap.containsKey(op.getName()) &&
+					getComputationValue(op.getName()).get() instanceof Map.Entry) {
+				Object stateObject = getComputationValue(op.getName()).get();
+				if (stateObject instanceof ComputationStatus && (ComputationStatus)stateObject == ComputationStatus.DISABLED) {
+					disableDependencies.add(op.getName());
+				}
+			}
+		}
+		Collections.sort(disableDependencies);
+		return disableDependencies;
+
 	}
 }

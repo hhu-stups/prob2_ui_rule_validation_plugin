@@ -20,14 +20,18 @@ import java.util.*;
 class OperationItem extends TreeItem<Object> {
 
 	private final RulesDataModel model;
+	private final String operation;
+	private boolean executable = true;
 
 	OperationItem(AbstractOperation operation, SimpleObjectProperty<Object> resultProperty, RulesDataModel model) {
 		super(operation);
+		this.operation = operation.getName();
 		this.model = model;
 		resultProperty.addListener((observable, oldValue, newValue) -> {
 			OperationItem.this.getChildren().clear();
 			if (newValue instanceof RuleResult) {
 				RuleResult ruleResult = (RuleResult) newValue;
+				executable = true;
 				switch (ruleResult.getRuleState()) {
 					case FAIL:
 					case NOT_CHECKED:
@@ -36,6 +40,7 @@ class OperationItem extends TreeItem<Object> {
 					case DISABLED:
 					case SUCCESS:
 						OperationItem.this.getChildren().clear();
+						executable = false;
 						break;
 				}
 			} else if (newValue instanceof Map.Entry && operation instanceof ComputationOperation) {
@@ -45,7 +50,6 @@ class OperationItem extends TreeItem<Object> {
 	}
 
 	private void createComputationChildren(Map.Entry result, ComputationOperation op) {
-		String opName = (String) result.getKey();
 		ComputationStatus state = (ComputationStatus) result.getValue();
 		if (state == ComputationStatus.NOT_EXECUTED) {
 			List<String> failedDependencies = model.getFailedDependenciesOfComputation(op.getName());
@@ -65,6 +69,16 @@ class OperationItem extends TreeItem<Object> {
 					failedItem.getChildren().add(new TreeItem<>(failed));
 				}
 				this.getChildren().add(failedItem);
+				executable = false;
+			}
+			List<String> disabledDependencies = model.getDisabledDependencies(operation);
+			if (disabledDependencies.size() > 0) {
+				TreeItem<Object> disabledItem = new TreeItem<>("DISABLED DEPENDENCIES");
+				for (String disabled : disabledDependencies) {
+					disabledItem.getChildren().add(new TreeItem<>(disabled));
+				}
+				this.getChildren().add(disabledItem);
+				executable = false;
 			}
 		}
 	}
@@ -78,6 +92,7 @@ class OperationItem extends TreeItem<Object> {
 					violationItem.getChildren().add(new TreeItem<>(example));
 				}
 				this.getChildren().add(violationItem);
+				executable = false;
 				break;
 			case NOT_CHECKED:
 				if (result.getNotCheckedDependencies().size() > 0) {
@@ -95,10 +110,22 @@ class OperationItem extends TreeItem<Object> {
 						failedItem.getChildren().add(new TreeItem<>(failed));
 					}
 					this.getChildren().add(failedItem);
+					executable = false;
+				}
+				List<String> disabledDependencies = model.getDisabledDependencies(operation);
+				if (disabledDependencies.size() > 0) {
+					TreeItem<Object> disabledItem = new TreeItem<>("DISABLED DEPENDENCIES");
+					for (String disabled : disabledDependencies) {
+						disabledItem.getChildren().add(new TreeItem<>(disabled));
+					}
+					this.getChildren().add(disabledItem);
+					executable = false;
 				}
 				break;
 		}
 	}
 
-
+	public boolean isExecutable() {
+		return executable;
+	}
 }

@@ -5,6 +5,7 @@ import de.prob.animator.domainobjects.IdentifierNotInitialised;
 import de.prob.model.brules.ComputationStatus;
 import de.prob.model.brules.RuleResult;
 import javafx.geometry.Pos;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class ValueCell extends TreeTableCell<Object, Object>{
 
 	private final RulesDataModel model;
+	private boolean executable;
 
 	ValueCell(RulesDataModel model) {
 		setAlignment(Pos.CENTER_LEFT);
@@ -26,6 +28,10 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 	@Override
 	protected void updateItem(Object item, boolean empty) {
 		super.updateItem(item, empty);
+		TreeItem<Object> treeItem = getTreeTableRow().getTreeItem();
+		if (treeItem instanceof OperationItem) {
+			executable = ((OperationItem) treeItem).isExecutable();
+		}
 		if (item == null || empty || item instanceof String)
 			configureEmptyCell();
 		else if (item instanceof RuleResult)
@@ -40,6 +46,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 	}
 
 	private void configureForComputationResult(String op, ComputationStatus result) {
+		getTreeTableRow().getTreeItem();
 		setText(result.toString());
 		switch (result) {
 			case EXECUTED:
@@ -49,7 +56,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				setStyle("-fx-background-color:lightgray");
 				break;
 			case NOT_EXECUTED:
-				if (!model.getFailedDependenciesOfComputation(op).isEmpty()) {
+				if (!executable) {
 					setText("NOT_EXECUTABLE");
 				}
 				setStyle(null);
@@ -72,7 +79,7 @@ public class ValueCell extends TreeTableCell<Object, Object>{
 				setStyle("-fx-background-color:palegreen");
 				break;
 			case NOT_CHECKED:
-				if (result.getFailedDependencies() != null && !result.getFailedDependencies().isEmpty()) {
+				if (!executable) {
 					setText("NOT CHECKABLE");
 				}
 				setStyle(null);
