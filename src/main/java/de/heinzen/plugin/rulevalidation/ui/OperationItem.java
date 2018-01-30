@@ -54,6 +54,7 @@ class OperationItem extends TreeItem<Object> {
 		if (state == ComputationStatus.NOT_EXECUTED) {
 			List<String> failedDependencies = model.getFailedDependenciesOfComputation(op.getName());
 			List<String> notCheckedDependencies = model.getNotCheckedDependenciesOfComputation(op.getName());
+			// create children for unchecked dependencies
 			if (notCheckedDependencies.size() > 0) {
 				TreeItem<Object> notCheckedItem = new TreeItem<>("UNCHECKED DEPENDENCIES");
 				Collections.sort(notCheckedDependencies);
@@ -62,6 +63,7 @@ class OperationItem extends TreeItem<Object> {
 				}
 				this.getChildren().add(notCheckedItem);
 			}
+			// create children for failed dependencies
 			if (failedDependencies.size() > 0) {
 				TreeItem<Object> failedItem = new TreeItem<>("FAILED DEPENDENCIES");
 				Collections.sort(failedDependencies);
@@ -71,6 +73,7 @@ class OperationItem extends TreeItem<Object> {
 				this.getChildren().add(failedItem);
 				executable = false;
 			}
+			// create children for disabled dependencies
 			List<String> disabledDependencies = model.getDisabledDependencies(operation);
 			if (disabledDependencies.size() > 0) {
 				TreeItem<Object> disabledItem = new TreeItem<>("DISABLED DEPENDENCIES");
@@ -86,6 +89,7 @@ class OperationItem extends TreeItem<Object> {
 	private void createRuleChildren(RuleResult result) {
 		switch(result.getRuleState()) {
 			case FAIL:
+				// create child items to show why the rule failed
 				TreeItem<Object> violationItem = new TreeItem<>("VIOLATIONS");
 				result.getCounterExamples().sort(Comparator.comparingInt(RuleResult.CounterExample::getErrorType));
 				for (RuleResult.CounterExample example : result.getCounterExamples()) {
@@ -95,6 +99,7 @@ class OperationItem extends TreeItem<Object> {
 				executable = false;
 				break;
 			case NOT_CHECKED:
+				// create child items for unchecked dependencies
 				if (result.getNotCheckedDependencies().size() > 0) {
 					TreeItem<Object> notCheckedItem = new TreeItem<>("UNCHECKED DEPENDENCIES");
 					Collections.sort(result.getNotCheckedDependencies());
@@ -103,6 +108,8 @@ class OperationItem extends TreeItem<Object> {
 					}
 					this.getChildren().add(notCheckedItem);
 				}
+
+				// create child items for failed dependencies
 				if (result.getFailedDependencies().size() > 0) {
 					TreeItem<Object> failedItem = new TreeItem<>("FAILED DEPENDENCIES");
 					Collections.sort(result.getFailedDependencies());
@@ -112,6 +119,8 @@ class OperationItem extends TreeItem<Object> {
 					this.getChildren().add(failedItem);
 					executable = false;
 				}
+
+				// create child items for disabled dependencies
 				List<String> disabledDependencies = model.getDisabledDependencies(operation);
 				if (disabledDependencies.size() > 0) {
 					TreeItem<Object> disabledItem = new TreeItem<>("DISABLED DEPENDENCIES");
@@ -125,7 +134,7 @@ class OperationItem extends TreeItem<Object> {
 		}
 	}
 
-	public boolean isExecutable() {
+	boolean isExecutable() {
 		return executable;
 	}
 }

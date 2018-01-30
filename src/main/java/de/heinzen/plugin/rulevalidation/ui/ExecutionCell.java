@@ -59,7 +59,6 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 
 	private void configureForRule(RuleResult result) {
 		if (result.getRuleState() == RuleStatus.NOT_CHECKED && executable) {
-				//result.getFailedDependencies().isEmpty()) {
 			setGraphic(createLabel(result.getRuleName()));
 		} else {
 			setGraphic(null);
