@@ -1,0 +1,22 @@
+{
+  "name": "SimpleRulesMachine",
+  "description": "(this project was created automatically from file /home/christoph/Dokumente/Masterarbeit/SimpleRulesMachine.rmch)",
+  "machines": [
+    {
+      "name": "SimpleRulesMachine",
+      "description": "",
+      "location": "SimpleRulesMachine.rmch",
+      "type": "BRULES",
+      "lastUsed": {
+        "name": "default",
+        "preferences": {}
+      },
+      "ltlFormulas": [],
+      "ltlPatterns": [],
+      "symbolicCheckingFormulas": [],
+      "traces": [],
+      "modelcheckingItems": []
+    }
+  ],
+  "preferences": []
+}
