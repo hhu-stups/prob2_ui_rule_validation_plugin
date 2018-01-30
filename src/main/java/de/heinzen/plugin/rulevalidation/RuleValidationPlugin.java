@@ -60,7 +60,6 @@ public class RuleValidationPlugin extends ProBPlugin{
 				getProBPluginHelper().getStageManager());
 		//add the tab
 		createTab();
-
 	}
 
 	@Override
