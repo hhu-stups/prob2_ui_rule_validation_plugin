@@ -5,10 +5,13 @@ import de.prob.model.brules.ComputationStatus;
 import de.prob.model.brules.RuleResult;
 import de.prob.model.brules.RuleStatus;
 import de.prob2.ui.operations.OperationsView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 
@@ -33,7 +36,14 @@ public class ExecutionCell extends TreeTableCell<Object, Object> {
 	@SuppressWarnings("unchecked")
 	protected void updateItem(Object item, boolean empty) {
 		super.updateItem(item, empty);
-		TreeItem<Object> treeItem = getTreeTableRow().getTreeItem();
+		TreeTableRow<Object> row = getTreeTableRow();
+		row.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			if (getGraphic() != null) {
+				Label label = (Label) getGraphic();
+				label.setTextFill(newValue ? Color.WHITE : Color.valueOf("#037875"));
+			}
+		});
+		TreeItem<Object> treeItem = row.getTreeItem();
 		if (treeItem instanceof OperationItem) {
 			executable = ((OperationItem) treeItem).isExecutable();
 		}

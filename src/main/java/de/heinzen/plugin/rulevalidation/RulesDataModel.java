@@ -209,13 +209,12 @@ public class RulesDataModel {
 			} else if (op instanceof ComputationOperation && computationValueMap.containsKey(op.getName()) &&
 					getComputationValue(op.getName()).get() instanceof Map.Entry) {
 				Object stateObject = getComputationValue(op.getName()).get();
-				if (stateObject instanceof ComputationStatus && (ComputationStatus)stateObject == ComputationStatus.DISABLED) {
+				if (stateObject instanceof ComputationStatus && stateObject == ComputationStatus.DISABLED) {
 					disableDependencies.add(op.getName());
 				}
 			}
 		}
 		Collections.sort(disableDependencies);
 		return disableDependencies;
-
 	}
 }
