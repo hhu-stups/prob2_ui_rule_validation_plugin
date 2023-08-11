@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class RulesDataModel {
 
-	private static final IdentifierNotInitialised IDENTIFIER_NOT_INITIALISED = new IdentifierNotInitialised(null);
+	private static final IdentifierNotInitialised IDENTIFIER_NOT_INITIALISED = new IdentifierNotInitialised(new ArrayList<>());
 
 	private RulesModel model;
 
