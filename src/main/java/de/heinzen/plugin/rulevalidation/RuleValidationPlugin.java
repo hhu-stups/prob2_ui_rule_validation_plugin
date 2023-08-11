@@ -3,6 +3,7 @@ package de.heinzen.plugin.rulevalidation;
 import de.heinzen.plugin.rulevalidation.ui.RulesView;
 import de.prob2.ui.layout.FontSize;
 import de.prob2.ui.operations.OperationsView;
+import de.prob2.ui.plugin.MenuEnum;
 import de.prob2.ui.plugin.ProBPlugin;
 import de.prob2.ui.plugin.ProBPluginHelper;
 import de.prob2.ui.plugin.ProBPluginManager;
@@ -22,7 +23,7 @@ import java.net.URL;
  * @version 0.1.0
  * @since 11.12.17
  */
-public class RuleValidationPlugin extends ProBPlugin{
+public class RuleValidationPlugin extends ProBPlugin {
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RuleValidationPlugin.class);
@@ -40,7 +41,6 @@ public class RuleValidationPlugin extends ProBPlugin{
 	private boolean opViewRemoved = false;
 
 	// Menu components
-	private Menu menu;
 	private MenuItem opViewMenuItem;
 
 	public RuleValidationPlugin(PluginWrapper wrapper, ProBPluginManager manager, ProBPluginHelper helper) {
@@ -72,11 +72,10 @@ public class RuleValidationPlugin extends ProBPlugin{
 		// make sure that the op view will be restored
 		restoreOperationsView(true);
 		// remove menu item
-		getProBPluginHelper().removeMenu(menu);
+		getProBPluginHelper().removeMenuItem(MenuEnum.WINDOW_MENU, opViewMenuItem);
 	}
 
 	private void createMenu() {
-		menu = new Menu("Rule Lang");
 		opViewMenuItem = new MenuItem("Restore Operations View");
 		opViewMenuItem.setOnAction(event -> {
 			if (operationsPane == null) {
@@ -85,8 +84,7 @@ public class RuleValidationPlugin extends ProBPlugin{
 				restoreOperationsView(false);
 			}
 		});
-		menu.getItems().add(opViewMenuItem);
-		getProBPluginHelper().addMenu(menu);
+		getProBPluginHelper().addMenuItem(MenuEnum.WINDOW_MENU, opViewMenuItem);
 	}
 
 	private void createTab(){
