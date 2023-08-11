@@ -1,5 +1,2 @@
 rootProject.name = 'rulevalidation'
-include ':prob2-ui'
-project(":prob2-ui").projectDir = file("../prob2-ui")
-
-
+includeBuild "../prob2_ui"

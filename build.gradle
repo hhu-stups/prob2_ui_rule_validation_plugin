@@ -1,26 +1,31 @@
-group 'de.heinzen.plugin'
-version '0.1'
+import org.gradle.plugins.ide.eclipse.model.AccessRule
+
+plugins {
+    id "org.openjfx.javafxplugin" version "0.0.14"
+}
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.8
 
-import org.gradle.plugins.ide.eclipse.model.AccessRule
+project.group 'de.heinzen.plugin'
+project.version '0.1.1'
 
 jar {
-    baseName = 'Rulevalidation-Language-Plugin'
-    version = '0.1.0'
+    archiveBaseName = 'Rulevalidation-Language-Plugin'
+    version = project.version
     manifest {
         attributes 'Plugin-Class' : 'de.heinzen.plugin.rulevalidation.RuleValidationPlugin',
                 'Plugin-Id' : 'RulevalidationLanguagePlugin',
-                'Plugin-Version' : '0.1.0',
+                'Plugin-Version' : project.version,
                 'Plugin-Provider' : 'Christoph Heinzen',
-                'Plugin-Requires' : '0.1.0'
+                'Plugin-Requires' : ""
     }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    duplicatesStrategy = 'exclude'
 }
 
 repositories {
@@ -37,8 +42,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly project(':prob2-ui')
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly group: 'de.hhu.stups', name: 'prob2-ui', version: '1.2.1-SNAPSHOT'
+    compileOnly group: "de.hhu.stups", name: "de.prob2.kernel", version: "4.12.2-SNAPSHOT"
+    compileOnly group: 'org.pf4j', name: 'pf4j', version: '3.9.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 }
 
 eclipse.classpath.file.whenMerged { classpath ->
@@ -47,4 +54,10 @@ eclipse.classpath.file.whenMerged { classpath ->
             entry.accessRules.add(new AccessRule('accessible', 'javafx/**'))
         }
     }
+}
+
+javafx {
+    version = "17.0.8"
+    modules = ["javafx.controls", "javafx.fxml"]
+    configuration = 'compileOnly'
 }
