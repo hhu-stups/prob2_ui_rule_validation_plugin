@@ -6,13 +6,14 @@ import de.be4.classicalb.core.parser.rules.ComputationOperation;
 import de.be4.classicalb.core.parser.rules.RuleOperation;
 import de.heinzen.plugin.rulevalidation.RulesController;
 import de.heinzen.plugin.rulevalidation.RulesDataModel;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.prob.model.brules.RuleResult;
+import de.prob2.ui.layout.BindableGlyph;
 import de.prob2.ui.layout.FontSize;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,10 +122,8 @@ public class RulesView extends AnchorPane{
 			return null;
 		});
 
-		FontAwesomeIconView buttonGraphic = ((FontAwesomeIconView) (filterButton.getGraphic()));
-		buttonGraphic.setGlyphSize(fontsize.getFontSize());
-		buttonGraphic.glyphSizeProperty().bind(fontsize.fontSizeProperty());
-
+		filterButton.setFont(new Font(fontsize.getFontSize()));
+		
 		executeAllButton.setDisable(true);
 	}
 

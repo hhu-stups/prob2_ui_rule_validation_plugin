@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import de.prob2.ui.layout.BindableGlyph?>
 <fx:root type="AnchorPane" minWidth="240" minHeight="70" xmlns:fx="http://javafx.com/fxml/1">
     <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0">
@@ -11,11 +11,10 @@
             <HBox spacing="10.0" AnchorPane.leftAnchor="10.0"
                   AnchorPane.topAnchor="10.0" AnchorPane.rightAnchor="10.0"
                   AnchorPane.bottomAnchor="10.0" alignment="CENTER">
-                <Button fx:id="filterButton" styleClass="button-dark"
-                        alignment="CENTER" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false"
-                        onAction="#handleFilterButton" HBox.hgrow="NEVER" prefHeight="${filterButton.width}">
+                <Button fx:id="filterButton"
+                              onAction="#handleFilterButton" HBox.hgrow="NEVER" prefHeight="${filterButton.width}">
                     <graphic>
-                        <FontAwesomeIconView glyphName="SEARCH" styleClass="icon-basic" />
+                        <BindableGlyph styleClass="icon-dark" fontFamily="FontAwesome" icon="SEARCH"/>
                     </graphic>
                 </Button>
                 <TextField fx:id="filterTextField" onAction="#handleFilterButton"
