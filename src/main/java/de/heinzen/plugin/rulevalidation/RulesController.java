@@ -6,24 +6,18 @@ import de.prob.model.brules.RulesModel;
 import de.prob.statespace.Trace;
 import de.prob2.ui.internal.StageManager;
 import de.prob2.ui.prob2fx.CurrentTrace;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,10 +142,12 @@ public class RulesController {
 		content.setAlignment(Pos.CENTER);
 		content.setPadding(new Insets(20,40,20,40));
 		content.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-		Stage stage = stageManager.makeStage(new Scene(content), null);
+		Stage stage = new Stage();
+		stage.setScene(new Scene(content));
 		stage.setTitle("Execute");
 		stage.initModality(Modality.APPLICATION_MODAL);
 		stage.initOwner(stageManager.getCurrent());
+		stageManager.register(stage, null);
 		return stage;
 	}
 }
