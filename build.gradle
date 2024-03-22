@@ -1,13 +1,7 @@
-import org.gradle.plugins.ide.eclipse.model.AccessRule
-
 plugins {
+    id "java"
     id "org.openjfx.javafxplugin" version "0.0.14"
 }
-
-apply plugin: 'java'
-apply plugin: 'eclipse'
-
-sourceCompatibility = 1.8
 
 project.group 'de.heinzen.plugin'
 project.version '0.1.1'
@@ -30,7 +24,6 @@ jar {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         name "sonatype snapshots"
         url "https://oss.sonatype.org/content/repositories/snapshots"
@@ -43,21 +36,13 @@ repositories {
 
 dependencies {
     compileOnly group: 'de.hhu.stups', name: 'prob2-ui', version: '1.2.2-SNAPSHOT'
-    compileOnly group: "de.hhu.stups", name: "de.prob2.kernel", version: "4.13.0"
+    compileOnly group: "de.hhu.stups", name: "prob-java", version: "4.13.0"
     compileOnly group: 'org.pf4j', name: 'pf4j', version: '3.10.0'
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
 }
 
-eclipse.classpath.file.whenMerged { classpath ->
-    classpath.entries.findResult { entry ->
-        if (entry.kind == 'con' && entry.path.contains('org.eclipse.jdt.launching.JRE_CONTAINER')) {
-            entry.accessRules.add(new AccessRule('accessible', 'javafx/**'))
-        }
-    }
-}
-
 javafx {
-    version = "17.0.8"
+    version = "21.0.2"
     modules = ["javafx.controls", "javafx.fxml"]
     configuration = 'compileOnly'
 }
